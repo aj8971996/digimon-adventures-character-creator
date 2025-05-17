@@ -1,0 +1,110 @@
+.attributes-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.points-info {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.points-info p {
+  margin: 5px 0;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.attributes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.attribute-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.attribute-header {
+  flex: 1;
+}
+
+.attribute-header h3 {
+  margin: 0 0 8px 0;
+}
+
+.attribute-description {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.attribute-value-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.attribute-value {
+  font-size: 20px;
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+}
+
+.value-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background-color: #4a90e2;
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.value-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.navigation-buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.back-button, .next-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.back-button {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.next-button {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.next-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

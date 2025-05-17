@@ -1,1 +1,47 @@
-<p>campaign-selection works!</p>
+<div class="campaign-selection-container">
+  <h2>Campaign Selection</h2>
+  <p>Choose the campaign type for your character:</p>
+  
+  <div class="campaign-types">
+    <div 
+      *ngFor="let campaign of campaignTypes" 
+      class="campaign-card" 
+      [class.selected]="selectedCampaign === campaign.type"
+      (click)="selectCampaign(campaign.type)">
+      
+      <h3>{{ campaign.type }}</h3>
+      
+      <div class="campaign-info">
+        <p><strong>Age Range:</strong> {{ campaign.ageRange.min }} - {{ campaign.ageRange.max || 'Unlimited' }}</p>
+        <p><strong>Starting CP:</strong> {{ campaign.startingCP }}</p>
+        <p><strong>Starting CP Limit:</strong> {{ campaign.startingCPLimit }}</p>
+        <p><strong>Final CP Limit:</strong> {{ campaign.finalCPLimit }}</p>
+      </div>
+      
+      <div class="campaign-splits">
+        <p><strong>Recommended Splits:</strong></p>
+        <p>Attributes: {{ campaign.recommendedSplits.attributes }}</p>
+        <p>Skills: {{ campaign.recommendedSplits.skills }}</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="age-selection" *ngIf="selectedCampaign">
+    <label for="age">Character Age:</label>
+    <input 
+      type="number" 
+      id="age" 
+      [(ngModel)]="age" 
+      [min]="getMinAge()" 
+      [max]="getMaxAge()"
+      (change)="validateAge()">
+      
+    <div class="age-error" *ngIf="ageError">
+      {{ ageError }}
+    </div>
+  </div>
+  
+  <div class="navigation-buttons">
+    <button class="next-button" [disabled]="!canProceed()" (click)="proceed()">Next</button>
+  </div>
+</div>

@@ -1,1 +1,107 @@
-<p>character-summary works!</p>
+<div class="character-summary-container">
+  <h2>Character Summary</h2>
+  
+  <div class="validation-errors" *ngIf="validationErrors.length > 0">
+    <h3>Please Fix the Following Issues:</h3>
+    <ul>
+      <li *ngFor="let error of validationErrors" class="error-item">{{ error }}</li>
+    </ul>
+  </div>
+  
+  <div class="save-success" *ngIf="showSaveSuccess">
+    <p>Character saved successfully!</p>
+  </div>
+  
+  <div class="character-sheet" *ngIf="character">
+    <div class="character-header">
+      <div class="character-basic-info">
+        <h3>{{ character.name || 'Unnamed Character' }}</h3>
+        <p>Age: {{ character.age || 'Not set' }}</p>
+        <p>Campaign Type: {{ character.campaignType }}</p>
+      </div>
+      
+      <div class="character-image" *ngIf="character.profileImage">
+        <img [src]="character.profileImage" alt="Character Profile">
+      </div>
+    </div>
+    
+    <div class="character-sections">
+      <div class="character-section">
+        <h4>Attributes</h4>
+        <ul>
+          <li *ngFor="let attribute of character.attributes">
+            <strong>{{ attribute.name }}:</strong> {{ attribute.value }}
+          </li>
+        </ul>
+      </div>
+      
+      <div class="character-section">
+        <h4>Skills</h4>
+        <div *ngFor="let attribute of character.attributes" class="skills-group">
+          <h5>{{ attribute.name }}</h5>
+          <ul>
+            <li *ngFor="let skill of attribute.skills">
+              <strong>{{ skill.name }}:</strong> {{ skill.value }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="character-section">
+        <h4>Derived Stats</h4>
+        <ul>
+          <li *ngFor="let stat of character.derivedStats | keyvalue">
+            <strong>{{ stat.key | titlecase }}:</strong> {{ stat.value }}
+          </li>
+        </ul>
+      </div>
+      
+      <div class="character-section" *ngIf="character.specialOrders && character.specialOrders.length > 0">
+        <h4>Special Orders</h4>
+        <ul>
+          <li *ngFor="let order of character.specialOrders">
+            <strong>{{ order.name }}</strong> ({{ order.orderType }})
+            <p class="detail-text">{{ order.description }}</p>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="character-section" *ngIf="character.aspects && character.aspects.length > 0">
+        <h4>Aspects</h4>
+        <ul>
+          <li *ngFor="let aspect of character.aspects">
+            <strong>{{ aspect.name }}</strong>
+            <p *ngIf="aspect.description" class="detail-text">{{ aspect.description }}</p>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="character-section" *ngIf="character.torments && character.torments.length > 0">
+        <h4>Torments</h4>
+        <ul>
+          <li *ngFor="let torment of character.torments">
+            <strong>{{ torment.name }}</strong> ({{ torment.type }})
+            <p *ngIf="torment.description" class="detail-text">{{ torment.description }}</p>
+            <div class="progress-tracker">
+              <span>Progress:</span>
+              <div class="progress-boxes">
+                <div 
+                  *ngFor="let _ of [].constructor(torment.type === 'Minor' ? 2 : (torment.type === 'Major' ? 3 : 4)); let i = index" 
+                  class="progress-box" 
+                  [class.filled]="i < torment.progress">
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <div class="action-buttons">
+    <button class="back-button" (click)="goBack()">Back</button>
+    <button class="reset-button" (click)="resetCharacter()">Reset Character</button>
+    <button class="save-button" (click)="saveCharacter()" [disabled]="validationErrors.length > 0">Save Character</button>
+    <button class="finish-button" (click)="finish()" [disabled]="validationErrors.length > 0">Finish</button>
+  </div>
+</div>

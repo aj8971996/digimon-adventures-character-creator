@@ -1,1 +1,116 @@
-<p>torments works!</p>
+<div class="torments-container">
+  <h2>Character Torments</h2>
+  
+  <div class="torments-info">
+    <p>Torments are psychological struggles or traumas that define your character's inner conflicts.</p>
+    <p>Remaining Torment CP: <span [class.highlight]="remainingCP > 0">{{ remainingCP }}</span></p>
+  </div>
+  
+  <div class="torment-types-info">
+    <h3>Torment Types:</h3>
+    <ul>
+      <li *ngFor="let type of tormentTypes">
+        <strong>{{ type.label }}</strong> ({{ type.cp }} CP) - Max Progress: {{ type.maxProgress }}
+      </li>
+    </ul>
+  </div>
+  
+  <div class="torment-form">
+    <h3>{{ editIndex !== null ? 'Edit Torment' : 'Add New Torment' }}</h3>
+    
+    <div class="form-group">
+      <label for="torment-name">Name:</label>
+      <input 
+        type="text" 
+        id="torment-name" 
+        [(ngModel)]="newTorment.name" 
+        placeholder="e.g., 'Fear of Darkness'" 
+        class="form-control">
+    </div>
+    
+    <div class="form-group">
+      <label for="torment-description">Description:</label>
+      <textarea 
+        id="torment-description" 
+        [(ngModel)]="newTorment.description" 
+        placeholder="Describe how this torment affects your character..." 
+        class="form-control" 
+        rows="3"></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="torment-type">Type:</label>
+      <select 
+        id="torment-type" 
+        [(ngModel)]="newTorment.type" 
+        class="form-control">
+        <option *ngFor="let type of tormentTypes" [value]="type.value" [disabled]="!canAddTorment(type.value) && editIndex === null">
+          {{ type.label }} ({{ type.cp }} CP)
+        </option>
+      </select>
+    </div>
+    
+    <div class="form-actions">
+      <button 
+        *ngIf="editIndex === null" 
+        (click)="addTorment()" 
+        [disabled]="!newTorment.name?.trim() || !canAddTorment(newTorment.type!)" 
+        class="btn btn-primary">
+        Add Torment
+      </button>
+      
+      <ng-container *ngIf="editIndex !== null">
+        <button (click)="saveEdit()" [disabled]="!newTorment.name?.trim()" class="btn btn-success">Save</button>
+        <button (click)="cancelEdit()" class="btn btn-secondary">Cancel</button>
+      </ng-container>
+    </div>
+  </div>
+  
+  <div class="torments-list">
+    <h3>Your Torments ({{ torments.length }})</h3>
+    
+    <div *ngIf="torments.length === 0" class="empty-state">
+      You haven't added any torments yet.
+    </div>
+    
+    <div *ngFor="let torment of torments; let i = index" class="torment-card">
+      <div class="torment-header">
+        <h4>{{ torment.name }}</h4>
+        <span class="torment-type-badge">{{ getTormentTypeLabel(torment.type) }}</span>
+      </div>
+      
+      <p *ngIf="torment.description" class="torment-description">{{ torment.description }}</p>
+      
+      <div class="torment-progress">
+        <span>Progress:</span>
+        <div class="progress-tracker">
+          <div 
+            *ngFor="let _ of [].constructor(torment.totalBoxes); let box = index" 
+            class="progress-box" 
+            [class.filled]="box < torment.progress">
+          </div>
+        </div>
+        <div class="progress-controls">
+          <button 
+            (click)="decreaseProgress(i)" 
+            [disabled]="torment.progress <= 0" 
+            class="progress-button">-</button>
+          <button 
+            (click)="increaseProgress(i)" 
+            [disabled]="torment.progress >= torment.totalBoxes" 
+            class="progress-button">+</button>
+        </div>
+      </div>
+      
+      <div class="torment-actions">
+        <button (click)="startEdit(i)" class="btn btn-small btn-edit">Edit</button>
+        <button (click)="deleteTorment(i)" class="btn btn-small btn-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="navigation-buttons">
+    <button class="back-button" (click)="goBack()">Back</button>
+    <button class="next-button" (click)="proceed()">Next</button>
+  </div>
+</div>

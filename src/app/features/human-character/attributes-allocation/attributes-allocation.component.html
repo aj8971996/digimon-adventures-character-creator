@@ -1,1 +1,40 @@
-<p>attributes-allocation works!</p>
+<div class="attributes-container">
+  <h2>Attribute Allocation</h2>
+  
+  <div class="points-info">
+    <p>Remaining Attribute Points: <span [class.error]="remainingPoints < 0">{{ remainingPoints }}</span></p>
+    <p>Campaign: {{ campaignType }}</p>
+    <p>Max Attribute Value: {{ maxAttributeValue }}</p>
+  </div>
+  
+  <div class="attributes-list">
+    <div *ngFor="let attribute of attributes" class="attribute-card">
+      <div class="attribute-header">
+        <h3>{{ attribute.name }}</h3>
+        <p class="attribute-description">{{ attribute.description }}</p>
+      </div>
+      
+      <div class="attribute-value-container">
+        <button 
+          (click)="decreaseAttribute(attribute)" 
+          [disabled]="attribute.value <= 0"
+          class="value-button">-</button>
+          
+        <span class="attribute-value">{{ attribute.value }}</span>
+        
+        <button 
+          (click)="increaseAttribute(attribute)" 
+          [disabled]="attribute.value >= maxAttributeValue || remainingPoints <= 0"
+          class="value-button">+</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="navigation-buttons">
+    <button class="back-button" (click)="goBack()">Back</button>
+    <button 
+      class="next-button" 
+      [disabled]="!canProceed()" 
+      (click)="proceed()">Next</button>
+  </div>
+</div>

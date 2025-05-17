@@ -10,6 +10,6 @@ export enum TormentType {
     name: string;
     description: string;
     totalBoxes: number;
-    markedBoxes: number;
+    progress: number;
     maxInitialProgress: number;
   }

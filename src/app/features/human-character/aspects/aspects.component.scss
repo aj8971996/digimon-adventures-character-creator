@@ -1,0 +1,210 @@
+.aspects-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.help-text {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.aspect-form {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  
+  h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+}
+
+.radio-options {
+  display: flex;
+  gap: 20px;
+  
+  label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    cursor: pointer;
+    
+    input {
+      margin-right: 5px;
+    }
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  
+  &:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.btn-edit {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.btn-delete {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.aspects-list {
+  margin-bottom: 30px;
+  
+  h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+  }
+}
+
+.empty-state {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-style: italic;
+  color: #666;
+}
+
+.aspect-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 15px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.aspect-content {
+  flex: 1;
+}
+
+.aspect-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+  
+  h4 {
+    margin: 0;
+  }
+}
+
+.aspect-type-badge {
+  background-color: #4a90e2;
+  color: white;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.aspect-triggers {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+.aspect-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.back-button, .next-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.back-button {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.next-button {
+  background-color: #4a90e2;
+  color: white;
+  
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+}

@@ -1,1 +1,24 @@
-<p>derived-stats works!</p>
+<div class="derived-stats-container">
+  <h2>Derived Statistics</h2>
+  
+  <p class="info-text">
+    These statistics are automatically calculated based on your character's attributes and skills.
+  </p>
+  
+  <div class="stats-grid">
+    <div *ngFor="let stat of derivedStats | keyvalue" class="stat-card">
+      <div class="stat-header">
+        <h3>{{ stat.key | titlecase }}</h3>
+        <span class="stat-value">{{ stat.value }}</span>
+      </div>
+      
+      <p class="stat-description">{{ attributeDescriptions[stat.key] }}</p>
+      <p class="stat-formula"><strong>Formula:</strong> {{ formulas[stat.key] }}</p>
+    </div>
+  </div>
+  
+  <div class="navigation-buttons">
+    <button class="back-button" (click)="goBack()">Back</button>
+    <button class="next-button" (click)="proceed()">Next</button>
+  </div>
+</div>

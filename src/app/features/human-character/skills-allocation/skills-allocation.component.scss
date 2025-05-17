@@ -1,0 +1,137 @@
+.skills-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.points-info {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.points-info p {
+  margin: 5px 0;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.attributes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.attribute-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.attribute-header {
+  margin-bottom: 15px;
+}
+
+.attribute-header h3 {
+  margin: 0 0 8px 0;
+}
+
+.attribute-description {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.skill-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+}
+
+.skill-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.skill-name {
+  font-weight: bold;
+}
+
+.skill-description {
+  font-size: 14px;
+  color: #666;
+}
+
+.skill-value-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.skill-value {
+  font-size: 18px;
+  font-weight: bold;
+  min-width: 25px;
+  text-align: center;
+}
+
+.value-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background-color: #4a90e2;
+  color: white;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.value-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.navigation-buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.back-button, .next-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.back-button {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.next-button {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.next-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

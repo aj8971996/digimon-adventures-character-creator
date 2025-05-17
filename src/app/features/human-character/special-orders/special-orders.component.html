@@ -1,1 +1,51 @@
-<p>special-orders works!</p>
+<div class="special-orders-container">
+  <h2>Special Orders</h2>
+  
+  <div class="campaign-info">
+    <p>Campaign Type: {{ campaignType }}</p>
+  </div>
+  
+  <div class="error-messages" *ngIf="errorMessages.length > 0">
+    <h3>Requirements Not Met:</h3>
+    <ul>
+      <li *ngFor="let error of errorMessages" class="error-message">{{ error }}</li>
+    </ul>
+  </div>
+  
+  <div class="orders-list">
+    <div *ngFor="let order of availableOrders" class="order-card" [class.selected]="order.selected" [class.disabled]="!meetsRequirement(order)">
+      <div class="order-header">
+        <h3>{{ order.name }}</h3>
+        <span class="order-type">{{ order.orderType }}</span>
+      </div>
+      
+      <div class="order-requirement" [class.met]="meetsRequirement(order)" [class.unmet]="!meetsRequirement(order)">
+        <span>Requires: {{ getAttributeName(order.attributeId) }} {{ getRequiredValue(order) }}</span>
+        <span>(Current: {{ getAttributeValue(order.attributeId) }})</span>
+      </div>
+      
+      <p class="order-description">{{ order.description }}</p>
+      
+      <div class="order-action">
+        <button 
+          (click)="toggleOrder(order)" 
+          [disabled]="!meetsRequirement(order)" 
+          class="toggle-button">
+          {{ order.selected ? 'Remove' : 'Select' }}
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="selected-orders" *ngIf="selectedOrders.length > 0">
+    <h3>Selected Orders:</h3>
+    <ul>
+      <li *ngFor="let order of selectedOrders">{{ order.name }}</li>
+    </ul>
+  </div>
+  
+  <div class="navigation-buttons">
+    <button class="back-button" (click)="goBack()">Back</button>
+    <button class="next-button" (click)="proceed()">Next</button>
+  </div>
+</div>
