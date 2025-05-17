@@ -1,3 +1,5 @@
+// src/assets/styles/_typography.scss
+
 // Orbitron Font
 @font-face {
   font-family: 'Orbitron';
@@ -33,9 +35,9 @@
 
 // Font Variables
 $font-display: 'Orbitron', sans-serif;
-$font-primary: 'Exo 2', sans-serif; // We'll use Google Fonts for this for now
-$font-secondary: 'Roboto', sans-serif; // We'll use Google Fonts for this for now
-$font-monospace: 'Share Tech Mono', monospace; // We'll use Google Fonts for this for now
+$font-primary: 'Exo 2', sans-serif; 
+$font-secondary: 'Roboto', sans-serif;
+$font-monospace: 'Share Tech Mono', monospace;
 
 // Font Weights
 $weight-regular: 400;
@@ -55,7 +57,7 @@ $font-size-3xl: 2.25rem;  // 36px
 $font-size-4xl: 3rem;     // 48px
 
 // Text Styles
-%heading-1 {
+@mixin heading-1 {
   font-family: $font-display;
   font-weight: $weight-bold;
   font-size: $font-size-3xl;
@@ -64,7 +66,7 @@ $font-size-4xl: 3rem;     // 48px
   text-transform: uppercase;
 }
 
-%heading-2 {
+@mixin heading-2 {
   font-family: $font-display;
   font-weight: $weight-medium;
   font-size: $font-size-2xl;
@@ -72,14 +74,14 @@ $font-size-4xl: 3rem;     // 48px
   letter-spacing: 0.02em;
 }
 
-%heading-3 {
+@mixin heading-3 {
   font-family: $font-display;
   font-weight: $weight-medium;
   font-size: $font-size-xl;
   line-height: 1.3;
 }
 
-%digital-display {
+@mixin digital-display {
   font-family: $font-display;
   font-weight: $weight-regular;
   font-size: $font-size-md;

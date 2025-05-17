@@ -1,8 +1,10 @@
+// Import variables which also forwards typography
+@use 'assets/styles/variables' as v;
+
 // Import Google Fonts for the fonts we're not hosting locally yet
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;700&family=Roboto:wght@300;400;500;700&family=Share+Tech+Mono&display=swap');
 
-// Import variables and typography
-@import 'assets/styles/variables';
+
 
 // Global Styles
 html {
@@ -10,28 +12,28 @@ html {
 }
 
 body {
-  font-family: $font-secondary;
-  font-size: $font-size-base;
+  font-family: v.$font-secondary;
+  font-size: v.$font-size-base;
   line-height: 1.5;
-  color: $digi-dark-gray;
-  background-color: $digi-light-gray;
+  color: v.$digi-dark-gray;
+  background-color: v.$digi-light-gray;
   margin: 0;
   padding: 0;
 }
 
 h1 {
-  @extend %heading-1;
-  color: $digi-blue;
+  @include v.heading-1;
+  color: v.$digi-blue;
 }
 
 h2 {
-  @extend %heading-2;
-  color: $digi-blue;
+  @include v.heading-2;
+  color: v.$digi-blue;
 }
 
 h3 {
-  @extend %heading-3;
-  color: $digi-dark-gray;
+  @include v.heading-3;
+  color: v.$digi-dark-gray;
 }
 
 // Add more global styles as needed

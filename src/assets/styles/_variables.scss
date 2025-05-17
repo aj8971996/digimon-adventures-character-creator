@@ -1,3 +1,5 @@
+// src/assets/styles/_variables.scss
+
 // Digimon-inspired Color Palette
 
 // Primary Colors
@@ -28,5 +30,5 @@ $status-warning: $digi-yellow;
 $status-danger: $digi-red;
 $status-info: $digi-blue;
 
-// Import typography variables
-@import 'typography';
+// Forward typography variables so they're available to importers of this file
+@forward 'typography';
