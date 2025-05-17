@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CharacterService } from '../../services/character.service';
-import { Attribute } from '../../models/attribute';
-import { HumanCharacterWizardService } from '../../services/human-character-wizard.service';
-import { CampaignType } from '../../models/campaign-type';
+import { CharacterService } from '../../../core/services/character.service';
+import { Attribute } from '../../../core/models/attribute';
+import { HumanCharacterWizardService } from '../human-character-wizard.service';
+import { CampaignType } from '../../../core/models/campaign-type';
 import { CAMPAIGN_TYPES } from '../../../data/campaign-types';
 
 @Component({

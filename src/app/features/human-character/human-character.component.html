@@ -1,0 +1,76 @@
+<div class="wizard-container">
+  <div class="wizard-header">
+    <h1>Human Character Creator</h1>
+    
+    <div class="character-info" *ngIf="character">
+      <div class="character-name">
+        <span *ngIf="character.name">{{ character.name }}</span>
+        <span *ngIf="!character.name">Unnamed Character</span>
+      </div>
+      
+      <div class="character-campaign" *ngIf="character.campaignType">
+        {{ character.campaignType }} Campaign
+      </div>
+      
+      <div class="character-age" *ngIf="character.age > 0">
+        Age: {{ character.age }}
+      </div>
+    </div>
+    
+    <div class="wizard-actions">
+      <button class="action-button save-button" (click)="saveProgress()">
+        Save Progress
+      </button>
+      <button class="action-button reset-button" (click)="resetWizard()">
+        Reset Wizard
+      </button>
+    </div>
+  </div>
+
+  <div class="wizard-progress">
+    <div 
+      *ngFor="let step of wizardSteps; let i = index" 
+      class="progress-step"
+      [class.active]="isStepActive(i)"
+      [class.completed]="i < currentStep"
+      [class.clickable]="isStepComplete(i)"
+      (click)="isStepComplete(i) ? goToStep(i) : null">
+      
+      <div class="step-indicator">
+        <div class="step-number">{{ i + 1 }}</div>
+        <div class="step-line" *ngIf="i < wizardSteps.length - 1"></div>
+      </div>
+      
+      <div class="step-info">
+        <div class="step-title">{{ step.title }}</div>
+        <div class="step-description">{{ step.description }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wizard-content">
+    <router-outlet></router-outlet>
+  </div>
+  
+  <div class="wizard-footer">
+    <div class="progress-text">
+      Step {{ currentStep + 1 }} of {{ wizardSteps.length }}
+    </div>
+    
+    <div class="wizard-navigation">
+      <button 
+        *ngIf="currentStep > 0" 
+        class="nav-button back-button"
+        (click)="goToStep(currentStep - 1)">
+        Previous
+      </button>
+      
+      <button 
+        *ngIf="currentStep < wizardSteps.length - 1" 
+        class="nav-button next-button" 
+        (click)="goToStep(currentStep + 1)">
+        Next
+      </button>
+    </div>
+  </div>
+</div>
