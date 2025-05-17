@@ -1,0 +1,32 @@
+// Digimon-inspired Color Palette
+
+// Primary Colors
+$digi-blue: #0053A0;        // Digivice blue
+$digi-orange: #FE5000;      // Agumon-inspired orange
+$digi-yellow: #FFD800;      // Emblem yellow
+
+// Secondary Colors
+$digi-red: #CE0E2D;         // Guilmon red
+$digi-green: #38B449;       // Terriermon green
+$digi-purple: #662D91;      // Wizardmon purple
+
+// Interface Colors
+$digital-screen: #A8D8E8;   // Digivice screen color
+$digital-dark: #121B29;     // Digital world night sky
+$digital-grid: #20BDDE;     // Digital world grid lines
+
+// Neutral Colors
+$digi-white: #FFFFFF;
+$digi-light-gray: #E8E8E8;
+$digi-gray: #A0A0A0;
+$digi-dark-gray: #404040;
+$digi-black: #121212;
+
+// Status Colors
+$status-success: $digi-green;
+$status-warning: $digi-yellow;
+$status-danger: $digi-red;
+$status-info: $digi-blue;
+
+// Import typography variables
+@import 'typography';
