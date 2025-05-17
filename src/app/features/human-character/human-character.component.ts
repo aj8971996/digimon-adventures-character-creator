@@ -17,6 +17,7 @@ export class HumanCharacterComponent implements OnInit, OnDestroy {
   currentStep: WizardStep = WizardStep.CampaignSelection;
   wizardSteps: { title: string, description: string }[] = [
     { title: 'Campaign', description: 'Choose campaign type' },
+    { title: 'Basics', description: 'Character details' },
     { title: 'Attributes', description: 'Allocate attribute points' },
     { title: 'Skills', description: 'Allocate skill points' },
     { title: 'Special Orders', description: 'Select special orders' },

@@ -4,13 +4,14 @@ import { Router } from '@angular/router';
 
 export enum WizardStep {
   CampaignSelection = 0,
-  AttributesAllocation = 1,
-  SkillsAllocation = 2,
-  SpecialOrders = 3,
-  Aspects = 4,
-  Torments = 5,
-  DerivedStats = 6,
-  CharacterSummary = 7
+  CharacterBasics = 1,    // New step added here
+  AttributesAllocation = 2,
+  SkillsAllocation = 3,
+  SpecialOrders = 4,
+  Aspects = 5,
+  Torments = 6,
+  DerivedStats = 7,
+  CharacterSummary = 8
 }
 
 @Injectable({
@@ -20,6 +21,7 @@ export class HumanCharacterWizardService {
   // Array of routes corresponding to each wizard step
   private readonly stepRoutes: string[] = [
     'campaign-selection',
+    'character-basics',    // New route added here
     'attributes-allocation',
     'skills-allocation',
     'special-orders',

@@ -23,6 +23,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/human-character/campaign-selection/campaign-selection.component').then(m => m.CampaignSelectionComponent)
       },
       {
+        path: 'character-basics',
+        loadComponent: () => import('./features/human-character/character-basics/character-basics.component').then(m => m.CharacterBasicsComponent)
+      },
+      {
         path: 'attributes-allocation',
         loadComponent: () => import('./features/human-character/attributes-allocation/attributes-allocation.component').then(m => m.AttributesAllocationComponent)
       },

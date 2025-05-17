@@ -8,6 +8,8 @@ export interface HumanCharacter {
     id: string;
     name: string;
     age: number;
+    description?: string; // Added field
+    backstory?: string; // Added field
     campaignType: CampaignType;
     profileImage?: string; // Base64 encoded image
     attributes: Attribute[];

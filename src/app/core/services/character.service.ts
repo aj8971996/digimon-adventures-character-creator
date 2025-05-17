@@ -14,6 +14,8 @@ export class CharacterService {
     id: uuidv4(),
     name: '',
     age: 0,
+    description: '',  // Added field
+    backstory: '',    // Added field
     campaignType: CampaignType.Standard,
     attributes: JSON.parse(JSON.stringify(ATTRIBUTES)), // Deep copy
     specialOrders: [],
