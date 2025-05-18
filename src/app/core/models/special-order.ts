@@ -1,7 +1,11 @@
 export enum OrderType {
     Passive = 'Passive',
-    OncePerDay = 'Once Per Day / Complex Action',
-    IntercedeAction = 'Once Per Day / Intercede Action'
+    OncePerDayComplexAction = 'Once Per Day / Complex Action',
+    OncerPerDaySimpleAction = 'Once Per Day / Simple Action',
+    OncePerBattleComplexAction = 'Once Per Battle / Complex Action',
+    OncePerBattleSimpleAction = 'Once Per Battle / Simple Action',
+    OncePerDayIntercede = 'Once Per Day / Intercede Action',
+    FreeAction = 'Free Action'
   }
   
   export interface SpecialOrder {
