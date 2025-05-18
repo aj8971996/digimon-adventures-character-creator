@@ -62,6 +62,9 @@ export class CampaignSelectionComponent implements OnInit {
       // Set default age to minimum age for campaign
       this.age = this.getMinAge();
       this.characterService.setCampaignType(campaignType);
+      
+      // Update the character with the age immediately
+      this.characterService.updateCharacter({ age: this.age });
     }
     
     this.validateAge();
@@ -80,6 +83,9 @@ export class CampaignSelectionComponent implements OnInit {
       this.ageError = `Age must be at least ${min} for ${this.selectedCampaign} campaign`;
     } else if (max && this.age > max) {
       this.ageError = `Age cannot exceed ${max} for ${this.selectedCampaign} campaign`;
+    } else {
+      // Age is valid, update the character
+      this.characterService.updateCharacter({ age: this.age });
     }
   }
   
