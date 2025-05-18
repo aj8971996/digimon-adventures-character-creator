@@ -1,5 +1,5 @@
 <div class="character-summary-container">
-  <h2>Character Summary</h2>
+  <h2 class="digital-heading">Character Summary</h2>
   
   <div class="validation-errors" *ngIf="validationErrors.length > 0">
     <h3>Please Fix the Following Issues:</h3>
@@ -12,89 +12,161 @@
     <p>Character saved successfully!</p>
   </div>
   
-  <div class="character-sheet" *ngIf="character">
+  <div class="character-sheet digital-display-panel" *ngIf="character">
+    <!-- Character Header with Digital Elements -->
     <div class="character-header">
       <div class="character-basic-info">
-        <h3>{{ character.name || 'Unnamed Character' }}</h3>
-        <p>Age: {{ character.age || 'Not set' }}</p>
-        <p>Campaign Type: {{ character.campaignType }}</p>
+        <h3 class="panel-title">{{ character.name || 'Unnamed Character' }}</h3>
+        <div class="digital-stat">
+          <span class="stat-label">Age:</span>
+          <span class="stat-value">{{ character.age || 'Not set' }}</span>
+        </div>
+        <div class="digital-stat">
+          <span class="stat-label">Campaign:</span>
+          <span class="stat-value">{{ character.campaignType }}</span>
+        </div>
       </div>
       
-      <div class="character-image" *ngIf="character.profileImage">
-        <img [src]="character.profileImage" alt="Character Profile">
+      <div class="character-rotating-circle" *ngIf="character.profileImage">
+        <div class="digital-circle">
+          <div class="inner-circle">
+            <div class="circle-content">
+              <img [src]="character.profileImage" alt="Character Profile">
+            </div>
+          </div>
+          <div class="circle-dots">
+            <div class="dot" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+          </div>
+          <div class="scanning-line"></div>
+        </div>
       </div>
     </div>
     
     <div class="character-sections">
-      <div class="character-section">
-        <h4>Attributes</h4>
-        <ul>
-          <li *ngFor="let attribute of character.attributes">
-            <strong>{{ attribute.name }}:</strong> {{ attribute.value }}
-          </li>
-        </ul>
-      </div>
-      
-      <div class="character-section">
-        <h4>Skills</h4>
-        <div *ngFor="let attribute of character.attributes" class="skills-group">
-          <h5>{{ attribute.name }}</h5>
-          <ul>
-            <li *ngFor="let skill of attribute.skills">
-              <strong>{{ skill.name }}:</strong> {{ skill.value }}
+      <!-- Attributes Section with Digital Display -->
+      <div class="character-section digital-panel">
+        <h4 class="panel-header">Attributes</h4>
+        <div class="panel-content">
+          <ul class="digital-list">
+            <li *ngFor="let attribute of character.attributes" class="digital-list-item">
+              <span class="item-label">{{ attribute.name }}:</span>
+              <span class="item-value">{{ attribute.value }}</span>
             </li>
           </ul>
         </div>
       </div>
       
-      <div class="character-section">
-        <h4>Derived Stats</h4>
-        <ul>
-          <li *ngFor="let stat of character.derivedStats | keyvalue">
-            <strong>{{ stat.key | titlecase }}:</strong> {{ stat.value }}
-          </li>
-        </ul>
+      <!-- Skills Section with Digital Display -->
+      <div class="character-section digital-panel">
+        <h4 class="panel-header">Skills</h4>
+        <div class="panel-content">
+          <div *ngFor="let attribute of character.attributes" class="skills-group">
+            <h5 class="subheader">{{ attribute.name }}</h5>
+            <ul class="digital-list">
+              <li *ngFor="let skill of attribute.skills" class="digital-list-item">
+                <span class="item-label">{{ skill.name }}:</span>
+                <span class="item-value">{{ skill.value }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
       
-      <div class="character-section" *ngIf="character.specialOrders && character.specialOrders.length > 0">
-        <h4>Special Orders</h4>
-        <ul>
-          <li *ngFor="let order of character.specialOrders">
-            <strong>{{ order.name }}</strong> ({{ order.orderType }})
-            <p class="detail-text">{{ order.description }}</p>
-          </li>
-        </ul>
+      <!-- Derived Stats Section with Digital Display -->
+      <div class="character-section digital-panel">
+        <h4 class="panel-header">Derived Stats</h4>
+        <div class="panel-content">
+          <ul class="digital-list">
+            <li *ngFor="let stat of character.derivedStats | keyvalue" class="digital-list-item">
+              <span class="item-label">{{ stat.key | titlecase }}:</span>
+              <span class="item-value">{{ stat.value }}</span>
+            </li>
+          </ul>
+        </div>
       </div>
       
-      <div class="character-section" *ngIf="character.aspects && character.aspects.length > 0">
-        <h4>Aspects</h4>
-        <ul>
-          <li *ngFor="let aspect of character.aspects">
-            <strong>{{ aspect.name }}</strong>
-            <p *ngIf="aspect.description" class="detail-text">{{ aspect.description }}</p>
-          </li>
-        </ul>
+      <!-- Special Orders Section with Digital Display -->
+      <div class="character-section digital-panel" *ngIf="character.specialOrders && character.specialOrders.length > 0">
+        <h4 class="panel-header">Special Orders</h4>
+        <div class="panel-content">
+          <ul class="digital-list">
+            <li *ngFor="let order of character.specialOrders" class="digital-list-item">
+              <div class="item-header">
+                <span class="item-title">{{ order.name }}</span>
+                <span class="item-type">{{ order.orderType }}</span>
+              </div>
+              <p *ngIf="order.description" class="detail-text">{{ order.description }}</p>
+            </li>
+          </ul>
+        </div>
       </div>
       
-      <div class="character-section" *ngIf="character.torments && character.torments.length > 0">
-        <h4>Torments</h4>
-        <ul>
-          <li *ngFor="let torment of character.torments">
-            <strong>{{ torment.name }}</strong> ({{ torment.type }})
-            <p *ngIf="torment.description" class="detail-text">{{ torment.description }}</p>
-            <div class="progress-tracker">
-              <span>Progress:</span>
-              <div class="progress-boxes">
-                <div 
-                  *ngFor="let _ of [].constructor(torment.type === 'Minor' ? 2 : (torment.type === 'Major' ? 3 : 4)); let i = index" 
-                  class="progress-box" 
-                  [class.filled]="i < torment.progress">
+      <!-- Aspects Section with Digital Display -->
+      <div class="character-section digital-panel" *ngIf="character.aspects && character.aspects.length > 0">
+        <h4 class="panel-header">Aspects</h4>
+        <div class="panel-content">
+          <ul class="digital-list">
+            <li *ngFor="let aspect of character.aspects" class="digital-list-item">
+              <div class="item-header">
+                <span class="item-title">{{ aspect.name }}</span>
+              </div>
+              <p *ngIf="aspect.description" class="detail-text">{{ aspect.description }}</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Torments Section with Digital Display -->
+      <div class="character-section digital-panel" *ngIf="character.torments && character.torments.length > 0">
+        <h4 class="panel-header">Torments</h4>
+        <div class="panel-content">
+          <ul class="digital-list">
+            <li *ngFor="let torment of character.torments" class="digital-list-item">
+              <div class="item-header">
+                <span class="item-title">{{ torment.name }}</span>
+                <span class="item-type">{{ torment.type }}</span>
+              </div>
+              <p *ngIf="torment.description" class="detail-text">{{ torment.description }}</p>
+              <div class="progress-tracker">
+                <span class="tracker-label">Progress:</span>
+                <div class="progress-boxes">
+                  <div 
+                    *ngFor="let _ of [].constructor(torment.type === 'Minor' ? 2 : (torment.type === 'Major' ? 3 : 4)); let i = index" 
+                    class="progress-box" 
+                    [class.filled]="i < torment.progress">
+                  </div>
                 </div>
               </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
       </div>
+    </div>
+    
+    <!-- Export Buttons with Digital Styling -->
+    <div class="export-buttons">
+      <button class="digital-button secondary-button" (click)="previewPdf()">
+        <i class="fas fa-eye"></i> Preview PDF
+      </button>
+      <button class="digital-button primary-button" (click)="downloadPdf()">
+        <i class="fas fa-download"></i> Download PDF
+      </button>
+    </div>
+    
+    <!-- Action Buttons with Digital Styling -->
+    <div class="action-buttons">
+      <button class="digital-button secondary-button" (click)="goBack()">
+        Previous
+      </button>
+      <button class="digital-button warning-button" (click)="resetCharacter()">
+        Reset Character
+      </button>
+      <button class="digital-button primary-button" (click)="saveCharacter()">
+        Save Character
+      </button>
+      <button class="digital-button success-button" (click)="finish()" [disabled]="validationErrors.length > 0">
+        Complete
+      </button>
     </div>
   </div>
 </div>

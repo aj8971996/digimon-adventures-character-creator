@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CharacterService } from '../../../core/services/character.service';
 import { HumanCharacterWizardService } from '../human-character-wizard.service';
 import { ValidationService } from '../../../core/services/validation.service';
+import { PdfExportService } from '../../../core/services/pdf-generator.service';
 import { HumanCharacter } from '../../../core/models/human-character';
 
 @Component({
@@ -20,12 +21,20 @@ export class CharacterSummaryComponent implements OnInit {
   constructor(
     private characterService: CharacterService,
     private validationService: ValidationService,
-    private wizardService: HumanCharacterWizardService
+    private wizardService: HumanCharacterWizardService,
+    private pdfExportService: PdfExportService
   ) {}
 
   ngOnInit(): void {
+    this.loadCharacter();
+  }
+  
+  loadCharacter(): void {
     this.character = this.characterService.getCurrentCharacter();
     this.validateCharacter();
+    
+    // Log character to verify age is present
+    console.log('Current character:', this.character);
   }
   
   validateCharacter(): void {
@@ -57,7 +66,33 @@ export class CharacterSummaryComponent implements OnInit {
   }
   
   finish(): void {
-    // For now, just save the character
+    if (this.validationErrors.length > 0) {
+      alert('Please fix all validation errors before completing the character creation.');
+      return;
+    }
+    
     this.saveCharacter();
+    alert('Character creation completed successfully!');
+    
+    // Additional completion logic could be added here
+    // For example, navigating to a different page or showing a completion modal
+  }
+  
+  /**
+   * Preview the character sheet as PDF
+   */
+  previewPdf(): void {
+    if (!this.character) return;
+    
+    this.pdfExportService.previewHumanCharacterPdf(this.character);
+  }
+
+  /**
+   * Download the character sheet as PDF
+   */
+  downloadPdf(): void {
+    if (!this.character) return;
+    
+    this.pdfExportService.generateHumanCharacterPdf(this.character);
   }
 }
