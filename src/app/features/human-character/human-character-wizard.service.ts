@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 
 export enum WizardStep {
   CampaignSelection = 0,
-  CharacterBasics = 1,    // New step added here
+  CharacterBasics = 1,
   AttributesAllocation = 2,
   SkillsAllocation = 3,
   SpecialOrders = 4,
@@ -21,7 +21,7 @@ export class HumanCharacterWizardService {
   // Array of routes corresponding to each wizard step
   private readonly stepRoutes: string[] = [
     'campaign-selection',
-    'character-basics',    // New route added here
+    'character-basics',
     'attributes-allocation',
     'skills-allocation',
     'special-orders',
@@ -34,6 +34,9 @@ export class HumanCharacterWizardService {
   // The current step in the wizard
   private currentStepSubject = new BehaviorSubject<WizardStep>(WizardStep.CampaignSelection);
   public currentStep$: Observable<WizardStep> = this.currentStepSubject.asObservable();
+
+  // Track if step validation should be skipped (e.g., when resuming a saved character)
+  private skipValidation = false;
 
   constructor(private router: Router) {}
 
@@ -53,6 +56,23 @@ export class HumanCharacterWizardService {
       this.currentStepSubject.next(step);
       this.navigateToCurrentStep();
     }
+  }
+
+  /**
+   * Update the current step without triggering navigation
+   * Useful when the route has already changed
+   */
+  setStepWithoutNavigation(step: WizardStep): void {
+    if (step >= 0 && step < Object.keys(WizardStep).length / 2) {
+      this.currentStepSubject.next(step);
+    }
+  }
+
+  /**
+   * Get the step index from a route path
+   */
+  getStepIndexFromRoute(routePath: string): number {
+    return this.stepRoutes.indexOf(routePath);
   }
 
   /**
@@ -123,5 +143,19 @@ export class HumanCharacterWizardService {
    */
   getTotalSteps(): number {
     return Object.keys(WizardStep).length / 2;
+  }
+
+  /**
+   * Temporarily skip validation (used when loading a saved character)
+   */
+  setSkipValidation(skip: boolean): void {
+    this.skipValidation = skip;
+  }
+
+  /**
+   * Check if validation should be skipped
+   */
+  shouldSkipValidation(): boolean {
+    return this.skipValidation;
   }
 }

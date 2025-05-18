@@ -1,4 +1,7 @@
 // src/assets/styles/_index.scss
+// This file forwards all variables and mixins for easier importing
 
 @forward 'variables';
 @forward 'typography';
+@forward 'backgrounds';
+@forward 'digital-elements';

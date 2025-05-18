@@ -1,10 +1,6 @@
 // Import variables which also forwards typography
 @use 'assets/styles/variables' as v;
-
-// Import Google Fonts for the fonts we're not hosting locally yet
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;700&family=Roboto:wght@300;400;500;700&family=Share+Tech+Mono&display=swap');
-
-
+@use 'assets/styles' as s;
 
 // Global Styles
 html {
@@ -12,28 +8,66 @@ html {
 }
 
 body {
-  font-family: v.$font-secondary;
-  font-size: v.$font-size-base;
+  font-family: s.$font-secondary;
+  font-size: s.$font-size-base;
   line-height: 1.5;
-  color: v.$digi-dark-gray;
-  background-color: v.$digi-light-gray;
+  color: s.$digi-dark-gray;
   margin: 0;
   padding: 0;
+  
+  // Apply the Digimon-style grid background to the entire app
+  @include s.digital-grid-bg;
+  min-height: 100vh;
+  
+  &::before {
+    opacity: 0.85; // Make the radial gradient stronger to soften the grid
+  }
 }
 
 h1 {
-  @include v.heading-1;
-  color: v.$digi-blue;
+  @include s.heading-1;
+  color: s.$digi-blue;
 }
 
 h2 {
-  @include v.heading-2;
-  color: v.$digi-blue;
+  @include s.heading-2;
+  color: s.$digi-blue;
 }
 
 h3 {
-  @include v.heading-3;
-  color: v.$digi-dark-gray;
+  @include s.heading-3;
+  color: s.$digi-dark-gray;
 }
 
-// Add more global styles as needed
+// Base button styles for consistency across the app
+button {
+  font-family: s.$font-display;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(s.$digi-blue, 0.5);
+  }
+}
+
+// Add a subtle scrollbar style
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(s.$digi-light-gray, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: s.$digi-blue;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: s.$digi-orange;
+}

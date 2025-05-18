@@ -27,29 +27,34 @@
     </div>
   </div>
 
-  <div class="wizard-progress">
-    <div 
-      *ngFor="let step of wizardSteps; let i = index" 
-      class="progress-step"
-      [class.active]="isStepActive(i)"
-      [class.completed]="i < currentStep"
-      [class.clickable]="isStepComplete(i)"
-      (click)="isStepComplete(i) ? goToStep(i) : null">
-      
-      <div class="step-indicator">
-        <div class="step-number">{{ i + 1 }}</div>
-        <div class="step-line" *ngIf="i < wizardSteps.length - 1"></div>
-      </div>
-      
-      <div class="step-info">
-        <div class="step-title">{{ step.title }}</div>
-        <div class="step-description">{{ step.description }}</div>
+  <!-- New wrapper div for the main content area -->
+  <div class="wizard-main">
+    <!-- Vertical step tracker on the left -->
+    <div class="wizard-progress vertical">
+      <div 
+        *ngFor="let step of wizardSteps; let i = index" 
+        class="progress-step"
+        [class.active]="isStepActive(i)"
+        [class.completed]="i < currentStep"
+        [class.clickable]="isStepComplete(i)"
+        (click)="isStepComplete(i) ? goToStep(i) : null">
+        
+        <div class="step-indicator">
+          <div class="step-number">{{ i + 1 }}</div>
+          <div class="step-line" *ngIf="i < wizardSteps.length - 1"></div>
+        </div>
+        
+        <div class="step-info">
+          <div class="step-title">{{ step.title }}</div>
+          <div class="step-description">{{ step.description }}</div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="wizard-content">
-    <router-outlet></router-outlet>
+    
+    <!-- Content area on the right -->
+    <div class="wizard-content">
+      <router-outlet></router-outlet>
+    </div>
   </div>
   
   <div class="wizard-footer">
@@ -69,7 +74,7 @@
         *ngIf="currentStep < wizardSteps.length - 1" 
         class="nav-button next-button" 
         (click)="goToStep(currentStep + 1)">
-        Next
+        Continue
       </button>
     </div>
   </div>
