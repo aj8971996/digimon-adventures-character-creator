@@ -1,11 +1,10 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // Default route - redirect to human character creator
+  // Home/Landing page
   {
     path: '',
-    redirectTo: '/human-character',
-    pathMatch: 'full'
+    loadComponent: () => import('./features/landing-page/landing-page.component').then(m => m.LandingPageComponent)
   },
   
   // Human Character Creator feature
@@ -60,6 +59,6 @@ export const routes: Routes = [
   // Fallback for any unmatched routes
   {
     path: '**',
-    redirectTo: '/human-character'
+    redirectTo: ''
   }
 ];

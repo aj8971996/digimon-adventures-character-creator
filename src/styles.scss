@@ -50,6 +50,17 @@ button {
     outline: none;
     box-shadow: 0 0 0 2px rgba(s.$digi-blue, 0.5);
   }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// Form styles
+input, select, textarea {
+  font-family: s.$font-monospace;
+  font-size: 0.95rem;
 }
 
 // Add a subtle scrollbar style
