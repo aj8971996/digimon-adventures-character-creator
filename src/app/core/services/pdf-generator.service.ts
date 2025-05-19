@@ -47,15 +47,16 @@ export class PdfExportService {
     // Page 1: Character Info and Derived Stats
     // Page 2: Agility, Body, Charisma attributes and skills
     // Page 3: Intelligence and other attributes, Special Orders
-    // Page 4: Aspects and Torments together
-    // Last Page: Notes (full page)
+    // Page 4: Aspects (full page)
+    // Page 5: Torments (full page)
+    // Page 6: Notes (full page)
     
     // Create the first page with Character Info and Derived Stats
     let currentPage = 1;
     let yPosition = margin + headerHeight;
     
     // Add character name header to the first page
-    this.addPageHeader(pdf, character, currentPage, 4); // Update total page count
+    this.addPageHeader(pdf, character, currentPage, 6); // Update total page count to 6
     
     // --- PAGE 1: Character Information and Derived Stats ---
     
@@ -81,13 +82,13 @@ export class PdfExportService {
     await this.renderSection(pdf, derivedStatsSection, margin, yPosition, contentWidth, pageWidth);
     
     // Add page footer
-    this.addPageFooter(pdf, currentPage, 4);
+    this.addPageFooter(pdf, currentPage, 6);
     
     // --- PAGE 2: Agility, Body, Charisma attributes ---
     pdf.addPage();
     currentPage++;
     yPosition = margin + headerHeight;
-    this.addPageHeader(pdf, character, currentPage, 4);
+    this.addPageHeader(pdf, character, currentPage, 6);
     
     // Filter attributes for page 2 (Agility, Body, Charisma)
     const page2Attributes = character.attributes.filter(attr => 
@@ -103,13 +104,13 @@ export class PdfExportService {
     await this.renderSection(pdf, page2AttributesSection, margin, yPosition, contentWidth, pageWidth);
     
     // Add page footer
-    this.addPageFooter(pdf, currentPage, 4);
+    this.addPageFooter(pdf, currentPage, 6);
     
     // --- PAGE 3: Intelligence and other attributes, Special Orders ---
     pdf.addPage();
     currentPage++;
     yPosition = margin + headerHeight;
-    this.addPageHeader(pdf, character, currentPage, 4);
+    this.addPageHeader(pdf, character, currentPage, 6);
     
     // Filter remaining attributes (Intelligence and any others)
     const page3Attributes = character.attributes.filter(attr => 
@@ -139,52 +140,16 @@ export class PdfExportService {
     }
     
     // Add page footer
-    this.addPageFooter(pdf, currentPage, 4);
+    this.addPageFooter(pdf, currentPage, 6);
     
-    // --- PAGE 4: Aspects and Torments together (centered on page) ---
+    // --- PAGE 4: Aspects only (full page) ---
     pdf.addPage();
     currentPage++;
     yPosition = margin + headerHeight;
-    this.addPageHeader(pdf, character, currentPage, 4);
-    
-    // Calculate content to center vertically
-    let aspectsHeight = 0;
-    let tormentsHeight = 0;
-    let totalContentHeight = 0;
+    this.addPageHeader(pdf, character, currentPage, 6);
     
     const hasAspects = character.aspects && character.aspects.length > 0;
-    const hasTorments = character.torments && character.torments.length > 0;
     
-    // Calculate expected heights for aspects and torments
-    if (hasAspects) {
-      const aspectsSection = {
-        title: "Aspects",
-        content: this.createAspectsHtml(character),
-        extraSpace: 5 * character.aspects.length
-      };
-      aspectsHeight = this.estimateSectionHeight(aspectsSection) + aspectsSection.extraSpace + 15;
-      totalContentHeight += aspectsHeight;
-    }
-    
-    if (hasTorments) {
-      const tormentsSection = {
-        title: "Torments",
-        content: this.createTormentsHtml(character),
-        extraSpace: 10 * character.torments.length
-      };
-      tormentsHeight = this.estimateSectionHeight(tormentsSection) + tormentsSection.extraSpace;
-      totalContentHeight += tormentsHeight;
-    }
-    
-    // Calculate starting position to center content vertically
-    const availableHeight = pageHeight - (margin + headerHeight) - margin - footerHeight;
-    const emptySpace = Math.max(0, availableHeight - totalContentHeight);
-    const topPadding = emptySpace / 2; // Divide empty space for top and bottom margins
-    
-    // Start rendering at calculated position to center content
-    yPosition += topPadding;
-    
-    // Aspects if they exist
     if (hasAspects) {
       const aspectsSection = {
         title: "Aspects",
@@ -192,33 +157,76 @@ export class PdfExportService {
         extraSpace: 5 * character.aspects.length
       };
       
-      yPosition = await this.renderSection(pdf, aspectsSection, margin, yPosition, contentWidth, pageWidth);
+      // Calculate available content area
+      const availableHeight = pageHeight - (margin + headerHeight) - margin - footerHeight;
       
-      // Add spacing between aspects and torments
-      if (hasTorments) {
-        yPosition += 20; // Extra space between sections
-      }
-    }
-    
-    // Torments if they exist
-    if (hasTorments) {
-      const tormentsSection = {
-        title: "Torments",
-        content: this.createTormentsHtml(character),
-        extraSpace: 10 * character.torments.length
-      };
+      // Calculate expected content height
+      const aspectsHeight = this.estimateSectionHeight(aspectsSection) + aspectsSection.extraSpace;
       
-      await this.renderSection(pdf, tormentsSection, margin, yPosition, contentWidth, pageWidth);
+      // Center content vertically
+      const emptySpace = Math.max(0, availableHeight - aspectsHeight);
+      const topPadding = emptySpace / 2;
+      
+      // Start rendering at calculated position to center content
+      yPosition += topPadding;
+      
+      await this.renderSection(pdf, aspectsSection, margin, yPosition, contentWidth, pageWidth);
+    } else {
+      // If no aspects, add placeholder
+      pdf.setFont('helvetica', 'italic');
+      pdf.setFontSize(12);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("No Aspects defined for this character.", pageWidth / 2, pageHeight / 2, { align: 'center' });
     }
     
     // Add page footer
-    this.addPageFooter(pdf, currentPage, 4);
+    this.addPageFooter(pdf, currentPage, 6);
     
-    // --- LAST PAGE: Full page Notes section ---
+    // --- PAGE 5: Torments only (full page) ---
     pdf.addPage();
     currentPage++;
     yPosition = margin + headerHeight;
-    this.addPageHeader(pdf, character, currentPage, 4);
+    this.addPageHeader(pdf, character, currentPage, 6);
+    
+    const hasTorments = character.torments && character.torments.length > 0;
+    
+    if (hasTorments) {
+      const tormentsSection = {
+        title: "Torments",
+        content: this.createTormentsHtml(character),
+        extraSpace: 10 * character.torments.length
+      };
+      
+      // Calculate available content area
+      const availableHeight = pageHeight - (margin + headerHeight) - margin - footerHeight;
+      
+      // Calculate expected content height
+      const tormentsHeight = this.estimateSectionHeight(tormentsSection) + tormentsSection.extraSpace;
+      
+      // Center content vertically
+      const emptySpace = Math.max(0, availableHeight - tormentsHeight);
+      const topPadding = emptySpace / 2;
+      
+      // Start rendering at calculated position to center content
+      yPosition += topPadding;
+      
+      await this.renderSection(pdf, tormentsSection, margin, yPosition, contentWidth, pageWidth);
+    } else {
+      // If no torments, add placeholder
+      pdf.setFont('helvetica', 'italic');
+      pdf.setFontSize(12);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("No Torments defined for this character.", pageWidth / 2, pageHeight / 2, { align: 'center' });
+    }
+    
+    // Add page footer
+    this.addPageFooter(pdf, currentPage, 6);
+    
+    // --- PAGE 6: Full page Notes section ---
+    pdf.addPage();
+    currentPage++;
+    yPosition = margin + headerHeight;
+    this.addPageHeader(pdf, character, currentPage, 6);
     
     // Make Notes section much larger to fill the page
     const notesSection = {
@@ -230,7 +238,7 @@ export class PdfExportService {
     await this.renderSection(pdf, notesSection, margin, yPosition, contentWidth, pageWidth);
     
     // Add page footer
-    this.addPageFooter(pdf, currentPage, 4);
+    this.addPageFooter(pdf, currentPage, 6);
     
     // Output the PDF once ALL sections have been processed
     if (action === 'download') {
@@ -239,7 +247,7 @@ export class PdfExportService {
       pdf.output('dataurlnewwindow');
     }
   }
-  
+    
   /**
    * Helper method to render a section to the PDF
    */
