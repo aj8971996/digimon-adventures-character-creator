@@ -89,9 +89,9 @@
 
   <!-- Attacks List -->
   <div class="attacks-list">
-    <h3>Configured Attacks ({{ digimon?.attacks.length || 0 }})</h3>
+    <h3>Configured Attacks ({{ digimon?.attacks?.length || 0 }})</h3>
     
-    <div *ngIf="!digimon?.attacks.length" class="empty-state">
+    <div *ngIf="!digimon?.attacks?.length" class="empty-state">
       You haven't configured any attacks yet.
     </div>
     

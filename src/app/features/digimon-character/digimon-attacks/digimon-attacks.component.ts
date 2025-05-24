@@ -11,8 +11,8 @@ import { DigimonAttack, AttackTag } from '../../../core/models/digimon-attack';
   selector: 'app-digimon-attacks-configuration',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './digimon-attacks-configuration.component.html',
-  styleUrl: './digimon-attacks-configuration.component.scss'
+  templateUrl: './digimon-attacks.component.html',
+  styleUrl: './digimon-attacks.component.scss'
 })
 export class DigimonAttacksConfigurationComponent implements OnInit {
   digimon: DigimonCharacter | null = null;

@@ -1,4 +1,5 @@
 // src/app/features/landing-page/landing-page.component.scss
+@use "sass:color";
 @use '../../../assets/styles' as s;
 
 .landing-container {
@@ -215,7 +216,7 @@ h1 {
     box-shadow: 0 4px 15px rgba(s.$digi-orange, 0.3);
     
     &:hover {
-      background-color: darken(s.$digi-orange, 10%);
+      background-color: color.adjust(s.$digi-orange, $lightness: -10%);
       box-shadow: 0 6px 20px rgba(s.$digi-orange, 0.5);
     }
   }
