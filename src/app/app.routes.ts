@@ -81,7 +81,7 @@ export const routes: Routes = [
       },
       {
         path: 'attacks-configuration',
-        loadComponent: () => import('./features/digimon-character/digimon-attacks-configuration/digimon-attacks-configuration.component').then(m => m.DigimonAttacksConfigurationComponent)
+        loadComponent: () => import('./features/digimon-character/digimon-attacks/digimon-attacks.component').then(m => m.DigimonAttacksConfigurationComponent)
       },
       {
         path: 'character-summary',

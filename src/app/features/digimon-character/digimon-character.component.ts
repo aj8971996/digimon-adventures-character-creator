@@ -12,8 +12,9 @@ import { DigimonCharacter } from '../../core/models/digimon-character';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './digimon-character.component.html',
-  styleUrl: './digimon-character.component.scss'
+  styleUrls: ['./digimon-character.component.scss'] // ← Corrected here
 })
+
 export class DigimonCharacterComponent implements OnInit, OnDestroy {
   currentStep: WizardStep = WizardStep.BasicInfo;
   wizardSteps: { title: string, description: string }[] = [
