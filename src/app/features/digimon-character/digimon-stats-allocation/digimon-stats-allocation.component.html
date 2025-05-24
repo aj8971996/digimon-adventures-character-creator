@@ -1,0 +1,99 @@
+<!-- src/app/features/digimon-character/digimon-stats-allocation/digimon-stats-allocation.component.html -->
+<div class="digimon-stats-container">
+  <h2>Digimon Stats Allocation</h2>
+  
+  <div class="points-info" *ngIf="digimon">
+    <p>Remaining DP (Digi-Points): <span [class.error]="digimon.remainingDP < 0" [class.warning]="digimon.remainingDP === 0">{{ digimon.remainingDP }}</span></p>
+    <p>Stage: {{ digimon.stage }} | Total DP: {{ getStageConfig()?.startingDP || 0 }}</p>
+    <p>Total Stats Spent: {{ digimon.spentStatsDP }} DP | Total Qualities Spent: {{ digimon.spentQualitiesDP }} DP</p>
+  </div>
+
+  <div class="help-section">
+    <h3>Stat Guidelines</h3>
+    <p>All stats must have at least 1 point. Stats are purchased on a 1:1 basis with DP. Consider your Digimon's role when allocating points:</p>
+    <ul>
+      <li><strong>Combat-focused:</strong> Prioritize Accuracy and Damage</li>
+      <li><strong>Tank/Guardian:</strong> Focus on Armor and Health</li>
+      <li><strong>Evasive:</strong> Emphasize Dodge and Accuracy</li>
+      <li><strong>Balanced:</strong> Distribute points evenly across all stats</li>
+    </ul>
+  </div>
+  
+  <div class="stats-list" *ngIf="digimon">
+    <div *ngFor="let stat of statInfo" class="stat-card">
+      <div class="stat-header">
+        <div class="stat-info">
+          <h3>{{ stat.name }}</h3>
+          <p class="stat-description">{{ stat.description }}</p>
+        </div>
+        
+        <div class="stat-controls">
+          <div class="stat-value-container">
+            <button 
+              (click)="decreaseStat(stat.id)" 
+              [disabled]="!canDecrease(stat.id)"
+              class="value-button decrease-button"
+              title="Decrease {{ stat.name }}">-</button>
+              
+            <span class="stat-value">{{ getStatValue(stat.id) }}</span>
+            
+            <button 
+              (click)="increaseStat(stat.id)" 
+              [disabled]="!canIncrease()"
+              class="value-button increase-button"
+              title="Increase {{ stat.name }}">+</button>
+          </div>
+          
+          <div class="stat-cost">
+            <span class="cost-label">Cost: 1 DP each</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Derived Stats Preview -->
+  <div class="derived-stats-preview" *ngIf="digimon">
+    <h3>Derived Stats Preview</h3>
+    <p class="preview-note">These values are calculated automatically based on your stat allocation:</p>
+    
+    <div class="derived-stats-grid">
+      <div class="derived-stat">
+        <span class="derived-label">Brains:</span>
+        <span class="derived-value">{{ digimon.derivedStats.brains }}</span>
+      </div>
+      <div class="derived-stat">
+        <span class="derived-label">Body:</span>
+        <span class="derived-value">{{ digimon.derivedStats.body }}</span>
+      </div>
+      <div class="derived-stat">
+        <span class="derived-label">Agility:</span>
+        <span class="derived-value">{{ digimon.derivedStats.agility }}</span>
+      </div>
+      <div class="derived-stat">
+        <span class="derived-label">BIT Value:</span>
+        <span class="derived-value">{{ digimon.derivedStats.bitValue }}</span>
+      </div>
+      <div class="derived-stat">
+        <span class="derived-label">CPU Value:</span>
+        <span class="derived-value">{{ digimon.derivedStats.cpuValue }}</span>
+      </div>
+      <div class="derived-stat">
+        <span class="derived-label">RAM Value:</span>
+        <span class="derived-value">{{ digimon.derivedStats.ramValue }}</span>
+      </div>
+      <div class="derived-stat">
+        <span class="derived-label">Wound Boxes:</span>
+        <span class="derived-value">{{ digimon.derivedStats.woundBoxTotal }}</span>
+      </div>
+      <div class="derived-stat">
+        <span class="derived-label">Movement:</span>
+        <span class="derived-value">{{ digimon.derivedStats.movement }}</span>
+      </div>
+      <div class="derived-stat">
+        <span class="derived-label">Range:</span>
+        <span class="derived-value">{{ digimon.derivedStats.range }}</span>
+      </div>
+    </div>
+  </div>
+</div>
