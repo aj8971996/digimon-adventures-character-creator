@@ -1,3 +1,4 @@
+// src/app/features/landing-page/landing-page.component.scss
 @use '../../../assets/styles' as s;
 
 .landing-container {
@@ -167,14 +168,14 @@ h1 {
 .action-buttons {
   margin-top: 20px;
   display: flex;
+  gap: 20px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .create-button {
   position: relative;
   display: inline-block;
-  background-color: s.$digi-blue;
-  color: white;
   font-family: s.$font-display;
   font-size: 1.1rem;
   padding: 12px 30px;
@@ -186,16 +187,37 @@ h1 {
   cursor: pointer;
   overflow: hidden;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(s.$digi-blue, 0.3);
+  min-width: 200px;
+  text-align: center;
   
   &:hover {
-    background-color: s.$digital-grid;
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(s.$digital-grid, 0.5);
   }
   
   &:active {
     transform: translateY(-1px);
+  }
+  
+  &.human-button {
+    background-color: s.$digi-blue;
+    color: white;
+    box-shadow: 0 4px 15px rgba(s.$digi-blue, 0.3);
+    
+    &:hover {
+      background-color: s.$digital-grid;
+      box-shadow: 0 6px 20px rgba(s.$digital-grid, 0.5);
+    }
+  }
+  
+  &.digimon-button {
+    background-color: s.$digi-orange;
+    color: white;
+    box-shadow: 0 4px 15px rgba(s.$digi-orange, 0.3);
+    
+    &:hover {
+      background-color: darken(s.$digi-orange, 10%);
+      box-shadow: 0 6px 20px rgba(s.$digi-orange, 0.5);
+    }
   }
   
   .button-glow {
@@ -259,8 +281,15 @@ h1 {
     height: 120px;
   }
   
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
   .create-button {
     font-size: 0.9rem;
     padding: 10px 20px;
+    width: 100%;
+    max-width: 250px;
   }
 }

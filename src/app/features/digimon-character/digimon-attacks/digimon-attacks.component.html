@@ -1,0 +1,125 @@
+<!-- src/app/features/digimon-character/digimon-attacks-configuration/digimon-attacks-configuration.component.html -->
+<div class="attacks-container">
+  <h2>Digimon Attacks Configuration</h2>
+  
+  <div class="attacks-info" *ngIf="digimon">
+    <p>Stage: {{ digimon.stage }} | Maximum Attacks: {{ getMaxAttacks() }}</p>
+    <p>Current Attacks: {{ digimon.attacks.length }} / {{ getMaxAttacks() }}</p>
+  </div>
+
+  <div class="help-section">
+    <h3>Attack Configuration</h3>
+    <p>Configure your Digimon's attacks. Each attack must have at least one range tag (Melee/Ranged) and one type tag (Damage/Support). Additional tags can provide special effects.</p>
+    
+    <div class="tag-rules">
+      <h4>Tag Rules:</h4>
+      <ul>
+        <li><strong>Melee</strong> and <strong>Ranged</strong> are mutually exclusive</li>
+        <li><strong>Damage</strong> and <strong>Support</strong> are mutually exclusive</li>
+        <li>Every attack must have exactly one from each pair</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Attack Form -->
+  <div class="attack-form" *ngIf="canAddAttack() || editIndex !== null">
+    <h3>{{ editIndex !== null ? 'Edit Attack' : 'Add New Attack' }}</h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="attack-name">Attack Name:</label>
+        <input 
+          type="text" 
+          id="attack-name" 
+          [(ngModel)]="newAttack.name" 
+          placeholder="e.g., 'Flame Burst'" 
+          class="form-control">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="attack-description">Description:</label>
+      <textarea 
+        id="attack-description" 
+        [(ngModel)]="newAttack.description" 
+        placeholder="Describe what the attack does and how it looks..." 
+        class="form-control" 
+        rows="3"></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label>Attack Tags:</label>
+      <div class="tags-grid">
+        <div *ngFor="let tag of availableAttackTags" 
+             class="tag-option"
+             [class.selected]="hasAttackTag(tag)"
+             [class.required]="tag === 'Melee' || tag === 'Ranged' || tag === 'Damage' || tag === 'Support'"
+             (click)="toggleAttackTag(tag)">
+          
+          <div class="tag-header">
+            <span class="tag-name">{{ tag }}</span>
+            <span class="tag-indicator" *ngIf="hasAttackTag(tag)">✓</span>
+          </div>
+          
+          <p class="tag-description">{{ getAttackTagDescription(tag) }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button 
+        *ngIf="editIndex === null" 
+        (click)="addAttack()" 
+        [disabled]="!isAttackFormValid()" 
+        class="btn btn-primary">
+        Add Attack
+      </button>
+      
+      <ng-container *ngIf="editIndex !== null">
+        <button (click)="saveEdit()" [disabled]="!isAttackFormValid()" class="btn btn-success">Save</button>
+        <button (click)="cancelEdit()" class="btn btn-secondary">Cancel</button>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- No more attacks allowed message -->
+  <div class="max-attacks-message" *ngIf="!canAddAttack() && editIndex === null">
+    <p>You have reached the maximum number of attacks for this stage ({{ getMaxAttacks() }}).</p>
+  </div>
+
+  <!-- Attacks List -->
+  <div class="attacks-list">
+    <h3>Configured Attacks ({{ digimon?.attacks.length || 0 }})</h3>
+    
+    <div *ngIf="!digimon?.attacks.length" class="empty-state">
+      You haven't configured any attacks yet.
+    </div>
+    
+    <div *ngFor="let attack of digimon?.attacks; let i = index" class="attack-card">
+      <div class="attack-header">
+        <h4>{{ attack.name }}</h4>
+        <div class="attack-actions">
+          <button (click)="startEdit(i)" class="btn btn-small btn-edit">Edit</button>
+          <button (click)="deleteAttack(i)" class="btn btn-small btn-delete">Delete</button>
+        </div>
+      </div>
+      
+      <p class="attack-description">{{ attack.description }}</p>
+      
+      <div class="attack-tags">
+        <span class="attack-tag" 
+              *ngFor="let tag of attack.tags"
+              [class]="'tag-' + tag.toLowerCase().replace(' ', '-')">
+          {{ tag }}
+        </span>
+      </div>
+      
+      <div class="attack-effects" *ngIf="attack.effects && attack.effects.length > 0">
+        <h5>Effects:</h5>
+        <ul>
+          <li *ngFor="let effect of attack.effects">{{ effect }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

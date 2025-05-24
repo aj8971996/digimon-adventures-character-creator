@@ -1,0 +1,165 @@
+<!-- src/app/features/digimon-character/digimon-character-summary/digimon-character-summary.component.html -->
+<div class="digimon-summary-container">
+  <h2 class="digital-heading">Digimon Summary</h2>
+  
+  <div class="validation-errors" *ngIf="validationErrors.length > 0">
+    <h3>Please Fix the Following Issues:</h3>
+    <ul>
+      <li *ngFor="let error of validationErrors" class="error-item">{{ error }}</li>
+    </ul>
+  </div>
+  
+  <div class="save-success" *ngIf="showSaveSuccess">
+    <p>Digimon saved successfully!</p>
+  </div>
+  
+  <div class="digimon-sheet digital-display-panel" *ngIf="digimon">
+    <!-- Digimon Header with Digital Elements -->
+    <div class="digimon-header">
+      <div class="digimon-basic-info">
+        <h3 class="panel-title">{{ digimon.name || 'Unnamed Digimon' }}</h3>
+        <div class="digital-stat">
+          <span class="stat-label">Species:</span>
+          <span class="stat-value">{{ digimon.species || 'Not set' }}</span>
+        </div>
+        <div class="digital-stat">
+          <span class="stat-label">Stage:</span>
+          <span class="stat-value">{{ digimon.stage }}</span>
+        </div>
+        <div class="digital-stat">
+          <span class="stat-label">Attribute:</span>
+          <span class="stat-value">{{ digimon.attribute }}</span>
+        </div>
+        <div class="digital-stat">
+          <span class="stat-label">Field:</span>
+          <span class="stat-value">{{ digimon.field }}</span>
+        </div>
+        <div class="digital-stat">
+          <span class="stat-label">Size:</span>
+          <span class="stat-value">{{ digimon.size }}</span>
+        </div>
+      </div>
+      
+      <div class="digimon-rotating-circle" *ngIf="digimon.profileImage">
+        <div class="digital-circle">
+          <div class="inner-circle">
+            <div class="circle-content">
+              <img [src]="digimon.profileImage" alt="Digimon Profile">
+            </div>
+          </div>
+          <div class="circle-dots">
+            <div class="dot" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+          </div>
+          <div class="scanning-line"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="digimon-sections">
+      <!-- Stats Section with Digital Display -->
+      <div class="digimon-section digital-panel">
+        <h4 class="panel-header">Base Stats</h4>
+        <div class="panel-content">
+          <ul class="digital-list">
+            <li *ngFor="let stat of digimon.stats | keyvalue" class="digital-list-item">
+              <span class="item-label">{{ stat.key | titlecase }}:</span>
+              <span class="item-value">{{ stat.value }}</span>
+            </li>
+            <li class="digital-list-item total">
+              <span class="item-label">Total:</span>
+              <span class="item-value">{{ getStatTotal() }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Derived Stats Section -->
+      <div class="digimon-section digital-panel">
+        <h4 class="panel-header">Derived Stats</h4>
+        <div class="panel-content">
+          <ul class="digital-list">
+            <li *ngFor="let stat of digimon.derivedStats | keyvalue" class="digital-list-item">
+              <span class="item-label">{{ stat.key | titlecase }}:</span>
+              <span class="item-value">{{ stat.value }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- DP Allocation Section -->
+      <div class="digimon-section digital-panel">
+        <h4 class="panel-header">DP Allocation</h4>
+        <div class="panel-content">
+          <ul class="digital-list">
+            <li class="digital-list-item">
+              <span class="item-label">Stats DP:</span>
+              <span class="item-value">{{ digimon.spentStatsDP }}</span>
+            </li>
+            <li class="digital-list-item">
+              <span class="item-label">Qualities DP:</span>
+              <span class="item-value">{{ digimon.spentQualitiesDP }}</span>
+            </li>
+            <li class="digital-list-item">
+              <span class="item-label">Remaining DP:</span>
+              <span class="item-value" [class.warning]="digimon.remainingDP > 0" [class.error]="digimon.remainingDP < 0">
+                {{ digimon.remainingDP }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Qualities Section -->
+      <div class="digimon-section digital-panel" *ngIf="digimon.qualities && digimon.qualities.length > 0">
+        <h4 class="panel-header">Qualities</h4>
+        <div class="panel-content">
+          <ul class="digital-list">
+            <li *ngFor="let qualityName of getQualityNames()" class="digital-list-item">
+              <span class="item-title">{{ qualityName }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Attacks Section -->
+      <div class="digimon-section digital-panel" *ngIf="digimon.attacks && digimon.attacks.length > 0">
+        <h4 class="panel-header">Attacks</h4>
+        <div class="panel-content">
+          <div *ngFor="let attack of digimon.attacks" class="attack-summary">
+            <div class="attack-header">
+              <span class="attack-name">{{ attack.name }}</span>
+              <div class="attack-tags">
+                <span *ngFor="let tag of attack.tags" class="attack-tag">{{ tag }}</span>
+              </div>
+            </div>
+            <p class="attack-description">{{ attack.description }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Description Section -->
+      <div class="digimon-section digital-panel" *ngIf="digimon.description">
+        <h4 class="panel-header">Description</h4>
+        <div class="panel-content">
+          <p class="description-text">{{ digimon.description }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons with Digital Styling -->
+    <div class="action-buttons">
+      <button class="digital-button secondary-button" (click)="goBack()">
+        Previous
+      </button>
+      <button class="digital-button warning-button" (click)="resetDigimon()">
+        Reset Digimon
+      </button>
+      <button class="digital-button primary-button" (click)="saveDigimon()">
+        Save Digimon
+      </button>
+      <button class="digital-button success-button" (click)="finish()" [disabled]="validationErrors.length > 0">
+        Complete
+      </button>
+    </div>
+  </div>
+</div>

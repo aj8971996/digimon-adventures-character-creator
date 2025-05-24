@@ -1,3 +1,4 @@
+// Update src/app/app.routes.ts
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -52,6 +53,39 @@ export const routes: Routes = [
       {
         path: 'character-summary',
         loadComponent: () => import('./features/human-character/character-summary/character-summary.component').then(m => m.CharacterSummaryComponent)
+      }
+    ]
+  },
+  
+  // Digimon Character Creator feature
+  {
+    path: 'digimon-character',
+    loadComponent: () => import('./features/digimon-character/digimon-character.component').then(m => m.DigimonCharacterComponent),
+    children: [
+      { 
+        path: '', 
+        redirectTo: 'basic-info', 
+        pathMatch: 'full' 
+      },
+      {
+        path: 'basic-info',
+        loadComponent: () => import('./features/digimon-character/digimon-basic-info/digimon-basic-info.component').then(m => m.DigimonBasicInfoComponent)
+      },
+      {
+        path: 'stats-allocation',
+        loadComponent: () => import('./features/digimon-character/digimon-stats-allocation/digimon-stats-allocation.component').then(m => m.DigimonStatsAllocationComponent)
+      },
+      {
+        path: 'qualities-selection',
+        loadComponent: () => import('./features/digimon-character/digimon-qualities-selection/digimon-qualities-selection.component').then(m => m.DigimonQualitiesSelectionComponent)
+      },
+      {
+        path: 'attacks-configuration',
+        loadComponent: () => import('./features/digimon-character/digimon-attacks-configuration/digimon-attacks-configuration.component').then(m => m.DigimonAttacksConfigurationComponent)
+      },
+      {
+        path: 'character-summary',
+        loadComponent: () => import('./features/digimon-character/digimon-character-summary/digimon-character-summary.component').then(m => m.DigimonCharacterSummaryComponent)
       }
     ]
   },

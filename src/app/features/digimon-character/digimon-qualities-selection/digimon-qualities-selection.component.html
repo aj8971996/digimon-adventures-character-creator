@@ -1,0 +1,88 @@
+<!-- src/app/features/digimon-character/digimon-qualities-selection/digimon-qualities-selection.component.html -->
+<div class="qualities-container">
+  <h2>Digimon Qualities Selection</h2>
+  
+  <div class="points-info" *ngIf="digimon">
+    <p>Remaining DP: <span [class.error]="digimon.remainingDP < 0" [class.warning]="digimon.remainingDP === 0">{{ digimon.remainingDP }}</span></p>
+    <p>Stage: {{ digimon.stage }} | Spent on Qualities: {{ digimon.spentQualitiesDP }} DP</p>
+  </div>
+
+  <div class="help-section">
+    <h3>About Qualities</h3>
+    <p>Qualities are special abilities that make your Digimon unique. They can provide combat bonuses, movement options, or special effects. Each quality has a DP cost and some may have prerequisites.</p>
+  </div>
+
+  <div class="category-filter">
+    <label for="category-select">Filter by Category:</label>
+    <select id="category-select" [(ngModel)]="selectedCategory" class="form-control">
+      <option *ngFor="let category of qualityCategories" [value]="category">{{ category }}</option>
+    </select>
+  </div>
+
+  <div class="qualities-grid">
+    <div *ngFor="let quality of getFilteredQualities()" class="quality-card" [class.unavailable]="!isQualityAvailable(quality)">
+      <div class="quality-header">
+        <div class="quality-info">
+          <h4>{{ quality.name }}</h4>
+          <div class="quality-meta">
+            <span class="quality-type">{{ quality.type }}</span>
+            <span class="quality-category">{{ quality.category }}</span>
+            <span class="quality-cost">{{ quality.cost }} DP</span>
+          </div>
+        </div>
+        
+        <div class="quality-controls" *ngIf="isQualityAvailable(quality)">
+          <div class="rank-display" *ngIf="quality.maxRanks && quality.maxRanks > 1">
+            <span class="rank-label">Rank {{ getQualityRank(quality.id) }}</span>
+            <span class="max-ranks">/ {{ quality.maxRanks }}</span>
+          </div>
+          
+          <div class="quality-buttons">
+            <button 
+              (click)="decreaseQuality(quality)" 
+              [disabled]="!canDecreaseQuality(quality)"
+              class="quality-button decrease-button"
+              title="Remove {{ quality.name }}">-</button>
+              
+            <span class="quality-rank">{{ getQualityRank(quality.id) || 0 }}</span>
+            
+            <button 
+              (click)="increaseQuality(quality)" 
+              [disabled]="!canIncreaseQuality(quality)"
+              class="quality-button increase-button"
+              title="Add {{ quality.name }}">+</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="quality-description">
+        <p>{{ quality.description }}</p>
+        
+        <div class="quality-prerequisites" *ngIf="quality.prerequisites && quality.prerequisites.length > 0">
+          <h5>Prerequisites:</h5>
+          <ul>
+            <li *ngFor="let prereq of quality.prerequisites">
+              <span *ngIf="prereq.stageRequirement">{{ prereq.stageRequirement }} Stage</span>
+              <span *ngIf="prereq.qualityId">Requires {{ prereq.qualityId }}</span>
+              <span *ngIf="prereq.statRequirement">{{ prereq.statRequirement.stat }} {{ prereq.statRequirement.minimum }}+</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="quality-exclusions" *ngIf="quality.mutuallyExclusive && quality.mutuallyExclusive.length > 0">
+          <h5>Cannot be taken with:</h5>
+          <p>{{ quality.mutuallyExclusive.join(', ') }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected Qualities Summary -->
+  <div class="selected-qualities" *ngIf="digimon && digimon.qualities.length > 0">
+    <h3>Selected Qualities</h3>
+    <div class="selected-list">
+      <div *ngFor="let selection of digimon.qualities" class="selected-quality">
+        <span class="quality-name">{{ selection.qualityId }}</span>
+        <span class="quality-rank" *ngIf="selection.rank > 1">Rank {{ selection.rank }}</span>
+      </div>
+    </div>
