@@ -12,12 +12,13 @@ import { DigimonCharacter } from '../../core/models/digimon-character';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './digimon-character.component.html',
-  styleUrls: ['./digimon-character.component.scss'] // ← Corrected here
+  styleUrls: ['./digimon-character.component.scss']
 })
 
 export class DigimonCharacterComponent implements OnInit, OnDestroy {
-  currentStep: WizardStep = WizardStep.BasicInfo;
+  currentStep: WizardStep = WizardStep.EvolutionLineSelection;
   wizardSteps: { title: string, description: string }[] = [
+    { title: 'Evolution Line', description: 'Select evolution path' },
     { title: 'Basic Info', description: 'Define your Digimon' },
     { title: 'Stats', description: 'Allocate stat points' },
     { title: 'Qualities', description: 'Select special abilities' },
@@ -66,8 +67,9 @@ export class DigimonCharacterComponent implements OnInit, OnDestroy {
       })
     );
     
-    // Load saved digimon if exists
+    // Load saved digimon and evolution line if exists
     const hasSavedDigimon = this.digimonService.loadDigimon();
+    const hasSavedEvolutionLine = this.digimonService.loadEvolutionLineSelection();
     
     // Start the wizard
     this.wizardService.startWizard();

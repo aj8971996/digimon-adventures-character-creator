@@ -1,4 +1,4 @@
-// Update src/app/app.routes.ts
+// src/app/app.routes.ts
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -82,6 +82,10 @@ export const routes: Routes = [
       {
         path: 'attacks-configuration',
         loadComponent: () => import('./features/digimon-character/digimon-attacks/digimon-attacks.component').then(m => m.DigimonAttacksConfigurationComponent)
+      },
+      {
+        path: 'evolution-line-selection',
+        loadComponent: () => import('./features/digimon-character/evolution-line-selection/evolution-line-selection.component').then(m => m.EvolutionLineSelectionComponent)
       },
       {
         path: 'character-summary',

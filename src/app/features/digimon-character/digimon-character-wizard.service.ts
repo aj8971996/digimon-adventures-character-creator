@@ -4,11 +4,12 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 
 export enum WizardStep {
-  BasicInfo = 0,
-  StatsAllocation = 1,
-  QualitiesSelection = 2,
-  AttacksConfiguration = 3,
-  CharacterSummary = 4
+  EvolutionLineSelection = 0,
+  BasicInfo = 1,
+  StatsAllocation = 2,
+  QualitiesSelection = 3,
+  AttacksConfiguration = 4,
+  CharacterSummary = 5
 }
 
 @Injectable({
@@ -17,6 +18,7 @@ export enum WizardStep {
 export class DigimonCharacterWizardService {
   // Array of routes corresponding to each wizard step
   private readonly stepRoutes: string[] = [
+    'evolution-line-selection',
     'basic-info',
     'stats-allocation',
     'qualities-selection',
@@ -25,7 +27,7 @@ export class DigimonCharacterWizardService {
   ];
 
   // The current step in the wizard
-  private currentStepSubject = new BehaviorSubject<WizardStep>(WizardStep.BasicInfo);
+  private currentStepSubject = new BehaviorSubject<WizardStep>(WizardStep.EvolutionLineSelection);
   public currentStep$: Observable<WizardStep> = this.currentStepSubject.asObservable();
 
   // Track if step validation should be skipped
@@ -105,14 +107,14 @@ export class DigimonCharacterWizardService {
    * Start the wizard
    */
   startWizard(): void {
-    this.goToStep(WizardStep.BasicInfo);
+    this.goToStep(WizardStep.EvolutionLineSelection);
   }
 
   /**
    * Reset the wizard to the first step
    */
   resetWizard(): void {
-    this.goToStep(WizardStep.BasicInfo);
+    this.goToStep(WizardStep.EvolutionLineSelection);
   }
 
   /**

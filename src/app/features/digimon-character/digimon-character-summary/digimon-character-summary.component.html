@@ -1,18 +1,18 @@
 <!-- src/app/features/digimon-character/digimon-character-summary/digimon-character-summary.component.html -->
 <div class="digimon-summary-container">
   <h2 class="digital-heading">Digimon Summary</h2>
-  
+
   <div class="validation-errors" *ngIf="validationErrors.length > 0">
     <h3>Please Fix the Following Issues:</h3>
     <ul>
       <li *ngFor="let error of validationErrors" class="error-item">{{ error }}</li>
     </ul>
   </div>
-  
+
   <div class="save-success" *ngIf="showSaveSuccess">
     <p>Digimon saved successfully!</p>
   </div>
-  
+
   <div class="digimon-sheet digital-display-panel" *ngIf="digimon">
     <!-- Digimon Header with Digital Elements -->
     <div class="digimon-header">
@@ -39,12 +39,12 @@
           <span class="stat-value">{{ digimon.size }}</span>
         </div>
       </div>
-      
+
       <div class="digimon-rotating-circle" *ngIf="digimon.profileImage">
         <div class="digital-circle">
           <div class="inner-circle">
             <div class="circle-content">
-              <img [src]="digimon.profileImage" alt="Digimon Profile">
+              <img [src]="digimon.profileImage" alt="Digimon Profile" />
             </div>
           </div>
           <div class="circle-dots">
@@ -54,7 +54,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="digimon-sections">
       <!-- Stats Section with Digital Display -->
       <div class="digimon-section digital-panel">
@@ -72,7 +72,7 @@
           </ul>
         </div>
       </div>
-      
+
       <!-- Derived Stats Section -->
       <div class="digimon-section digital-panel">
         <h4 class="panel-header">Derived Stats</h4>
@@ -85,7 +85,7 @@
           </ul>
         </div>
       </div>
-      
+
       <!-- DP Allocation Section -->
       <div class="digimon-section digital-panel">
         <h4 class="panel-header">DP Allocation</h4>
@@ -101,14 +101,18 @@
             </li>
             <li class="digital-list-item">
               <span class="item-label">Remaining DP:</span>
-              <span class="item-value" [class.warning]="digimon.remainingDP > 0" [class.error]="digimon.remainingDP < 0">
+              <span
+                class="item-value"
+                [class.warning]="digimon.remainingDP > 0"
+                [class.error]="digimon.remainingDP < 0"
+              >
                 {{ digimon.remainingDP }}
               </span>
             </li>
           </ul>
         </div>
       </div>
-      
+
       <!-- Qualities Section -->
       <div class="digimon-section digital-panel" *ngIf="digimon.qualities && digimon.qualities.length > 0">
         <h4 class="panel-header">Qualities</h4>
@@ -120,7 +124,7 @@
           </ul>
         </div>
       </div>
-      
+
       <!-- Attacks Section -->
       <div class="digimon-section digital-panel" *ngIf="digimon.attacks && digimon.attacks.length > 0">
         <h4 class="panel-header">Attacks</h4>
@@ -136,7 +140,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Description Section -->
       <div class="digimon-section digital-panel" *ngIf="digimon.description">
         <h4 class="panel-header">Description</h4>
@@ -145,7 +149,17 @@
         </div>
       </div>
     </div>
-    
+
+    <!-- Export Buttons with Digital Styling -->
+    <div class="export-buttons">
+      <button class="digital-button secondary-button" (click)="previewPdf()">
+        <i class="fas fa-eye"></i> Preview PDF
+      </button>
+      <button class="digital-button primary-button" (click)="downloadPdf()">
+        <i class="fas fa-download"></i> Download PDF
+      </button>
+    </div>
+
     <!-- Action Buttons with Digital Styling -->
     <div class="action-buttons">
       <button class="digital-button secondary-button" (click)="goBack()">
@@ -157,7 +171,11 @@
       <button class="digital-button primary-button" (click)="saveDigimon()">
         Save Digimon
       </button>
-      <button class="digital-button success-button" (click)="finish()" [disabled]="validationErrors.length > 0">
+      <button
+        class="digital-button success-button"
+        (click)="finish()"
+        [disabled]="validationErrors.length > 0"
+      >
         Complete
       </button>
     </div>

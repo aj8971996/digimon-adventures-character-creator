@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DigimonService } from '../../../core/services/digimon.service';
 import { DigimonCharacterWizardService } from '../digimon-character-wizard.service';
+import { DigimonPdfGeneratorService } from '../../../core/services/digimon-pdf-generator.service';
 import { DigimonCharacter } from '../../../core/models/digimon-character';
 
 @Component({
@@ -19,7 +20,8 @@ export class DigimonCharacterSummaryComponent implements OnInit {
   
   constructor(
     private digimonService: DigimonService,
-    private wizardService: DigimonCharacterWizardService
+    private wizardService: DigimonCharacterWizardService,
+    private pdfGeneratorService: DigimonPdfGeneratorService
   ) {}
 
   ngOnInit(): void {
@@ -67,6 +69,24 @@ export class DigimonCharacterSummaryComponent implements OnInit {
     
     this.saveDigimon();
     alert('Digimon creation completed successfully!');
+  }
+
+  /**
+   * Preview the Digimon character sheet as PDF
+   */
+  previewPdf(): void {
+    if (!this.digimon) return;
+    
+    this.pdfGeneratorService.previewDigimonCharacterPdf(this.digimon);
+  }
+
+  /**
+   * Download the Digimon character sheet as PDF
+   */
+  downloadPdf(): void {
+    if (!this.digimon) return;
+    
+    this.pdfGeneratorService.generateDigimonCharacterPdf(this.digimon);
   }
 
   // Helper methods for display

@@ -8,6 +8,16 @@ import { DIGIMON_STAGE_CONFIGS } from '../../data/digimon-stages';
 import { DIGIMON_SIZE_CONFIGS } from '../../data/digimon-sizes';
 import { DigimonStage } from '../models/digimon-stage';
 
+export interface EvolutionLineSelection {
+  rookieId: string;
+  rookieName: string;
+  rookieSprite?: string;
+  championOptions: { id: string; name: string; sprite?: string }[];
+  selectedChampion?: string;
+  stages: DigimonStage[];
+  hasSplitEvolution: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -48,6 +58,11 @@ export class DigimonService {
 
   private digimonSubject = new BehaviorSubject<DigimonCharacter>(this.initialDigimon);
   public digimon$: Observable<DigimonCharacter> = this.digimonSubject.asObservable();
+
+  // Evolution line selection storage
+  private evolutionLineSelection: EvolutionLineSelection | null = null;
+  private evolutionLineSubject = new BehaviorSubject<EvolutionLineSelection | null>(null);
+  public evolutionLine$: Observable<EvolutionLineSelection | null> = this.evolutionLineSubject.asObservable();
 
   constructor() {}
 
@@ -160,10 +175,44 @@ export class DigimonService {
     }
   }
 
+  // Evolution Line Methods
+  setEvolutionLineSelection(selection: EvolutionLineSelection): void {
+    this.evolutionLineSelection = selection;
+    this.evolutionLineSubject.next(selection);
+    
+    // Store in localStorage for persistence
+    localStorage.setItem('digimonEvolutionLine', JSON.stringify(selection));
+  }
+
+  getEvolutionLineSelection(): EvolutionLineSelection | null {
+    return this.evolutionLineSelection;
+  }
+
+  loadEvolutionLineSelection(): boolean {
+    const saved = localStorage.getItem('digimonEvolutionLine');
+    if (saved) {
+      try {
+        this.evolutionLineSelection = JSON.parse(saved);
+        this.evolutionLineSubject.next(this.evolutionLineSelection);
+        return true;
+      } catch (error) {
+        console.error('Failed to load evolution line selection:', error);
+      }
+    }
+    return false;
+  }
+
+  clearEvolutionLineSelection(): void {
+    this.evolutionLineSelection = null;
+    this.evolutionLineSubject.next(null);
+    localStorage.removeItem('digimonEvolutionLine');
+  }
+
   resetDigimon(): void {
     const newDigimon = { ...this.initialDigimon, id: uuidv4() };
     newDigimon.derivedStats = this.calculateDerivedStats(newDigimon);
     this.digimonSubject.next(newDigimon);
+    this.clearEvolutionLineSelection();
   }
 
   saveDigimon(): void {
