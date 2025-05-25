@@ -42,45 +42,9 @@ export class DigimonBasicInfoComponent implements OnInit {
     }
   }
 
-  handleImageUpload(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    
-    if (!input.files || input.files.length === 0 || !this.digimon) {
-      return;
-    }
-    
-    const file = input.files[0];
-    
-    // Check file size (limit to 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Image size must be under 2MB');
-      return;
-    }
-    
-    // Check file type
-    if (!file.type.match('image.*')) {
-      alert('Only image files are allowed');
-      return;
-    }
-    
-    // Convert to base64
-    const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      if (this.digimon) {
-        this.digimon.profileImage = e.target?.result as string;
-        this.updateDigimon();
-      }
-    };
-    reader.readAsDataURL(file);
-  }
+  // Remove image upload functionality since we're using evolution line sprites
+  // The profile image is now set automatically based on evolution selection
   
-  removeImage(): void {
-    if (this.digimon) {
-      this.digimon.profileImage = undefined;
-      this.updateDigimon();
-    }
-  }
-
   getStageConfig() {
     if (!this.digimon) return null;
     return this.digimonService.getStageConfig(this.digimon.stage);

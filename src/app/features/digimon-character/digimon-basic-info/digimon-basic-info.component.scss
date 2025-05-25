@@ -87,6 +87,12 @@
   &:invalid {
     border-color: s.$digi-red;
   }
+  
+  &[readonly] {
+    background-color: #f8f9fa;
+    color: s.$digi-dark-gray;
+    cursor: not-allowed;
+  }
 }
 
 .form-hint {
@@ -97,7 +103,7 @@
   font-style: italic;
 }
 
-/* Image upload section */
+/* Updated image section for sprites */
 .profile-image-section {
   margin-bottom: 20px;
   
@@ -115,77 +121,62 @@
   position: relative;
   border-radius: 8px;
   overflow: hidden;
+  text-align: center;
+  background-color: s.$digital-screen;
+  padding: 15px;
+  border: 2px solid s.$digi-orange;
   
   .profile-preview {
-    width: 100%;
+    max-width: 100%;
     height: auto;
-    max-height: 200px;
-    object-fit: cover;
-    border: 2px solid s.$digi-orange;
+    max-height: 150px;
+    object-fit: contain;
     border-radius: 8px;
   }
   
-  .remove-image-button {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: none;
+  .sprite-note {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: rgba(254, 80, 0, 0.1);
     border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
     
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.9);
+    small {
+      color: s.$digi-orange;
+      font-weight: 500;
+      font-style: italic;
     }
   }
 }
 
-.image-upload {
+.no-image-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 30px;
-  border: 2px dashed s.$digi-orange;
+  border: 2px dashed s.$digi-gray;
   border-radius: 8px;
   margin: 10px 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
   background-color: rgba(254, 80, 0, 0.05);
+  text-align: center;
   
-  &:hover {
-    border-color: s.$digital-grid;
-    background-color: rgba(32, 189, 222, 0.05);
+  .placeholder-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.7;
   }
   
-  .upload-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    gap: 8px;
+  p {
+    margin: 5px 0;
+    color: s.$digi-dark-gray;
+    font-weight: 500;
   }
   
-  .upload-icon {
-    font-size: 28px;
-    color: s.$digi-orange;
-    font-weight: bold;
+  small {
+    color: s.$digi-dark-gray;
+    font-style: italic;
+    line-height: 1.4;
   }
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
 }
 
 /* Info panels */

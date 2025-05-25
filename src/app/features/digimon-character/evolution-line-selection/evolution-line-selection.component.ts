@@ -32,12 +32,13 @@ export class EvolutionLineSelectionComponent implements OnInit {
   digimon: DigimonCharacter | null = null;
   currentStep: WizardStep = 'stages';
   
-  // Available stages for selection
+  // Available stages for selection - ONLY Rookie and Champion for now
   availableStages = [
     DigimonStage.Rookie,
-    DigimonStage.Champion,
-    DigimonStage.Ultimate,
-    DigimonStage.Mega
+    DigimonStage.Champion
+    // Disabled for now since we don't have sprites:
+    // DigimonStage.Ultimate,
+    // DigimonStage.Mega
   ];
   
   // Current selection state
@@ -136,7 +137,7 @@ export class EvolutionLineSelectionComponent implements OnInit {
     return rookie ? rookie.rookieName : '';
   }
 
-  getRookieSprite(rookieId: string): string {
+  getRookieSpritePath(rookieId: string): string {
     const rookie = this.availableRookies.find(r => r.rookieId === rookieId);
     const spriteName = rookie?.rookieSprite;
     return spriteName ? this.assetService.getRookieSpritePath(spriteName) : '';
@@ -152,7 +153,7 @@ export class EvolutionLineSelectionComponent implements OnInit {
     return champion ? champion.name : '';
   }
 
-  getChampionSprite(championId: string): string {
+  getChampionSpritePath(championId: string): string {
     const champion = this.availableChampions.find(c => c.id === championId);
     const spriteName = champion?.sprite;
     return spriteName ? this.assetService.getChampionSpritePath(spriteName) : '';
@@ -221,7 +222,7 @@ export class EvolutionLineSelectionComponent implements OnInit {
       stages: [...this.selectedStages],
       rookieId: this.selectedRookieId,
       rookieName: this.getRookieName(this.selectedRookieId),
-      rookieSprite: this.getRookieSprite(this.selectedRookieId),
+      rookieSprite: this.getRookieSpritePath(this.selectedRookieId),
       championOptions: [...this.availableChampions],
       selectedChampion: this.selectedChampionId,
       hasSplitEvolution: this.availableChampions.length > 1
@@ -233,10 +234,24 @@ export class EvolutionLineSelectionComponent implements OnInit {
     // Start with Rookie stage
     this.digimonService.setStage(DigimonStage.Rookie);
     
+    // Determine which sprite and species to use
+    let spriteToUse = '';
+    let speciesToUse = '';
+    
+    if (this.stagesIncludesChampion() && this.selectedChampionId) {
+      // If Champion is selected, use Champion sprite and name
+      spriteToUse = this.getChampionSpritePath(this.selectedChampionId);
+      speciesToUse = this.getChampionName(this.selectedChampionId);
+    } else {
+      // Otherwise use Rookie sprite and name
+      spriteToUse = this.getRookieSpritePath(this.selectedRookieId);
+      speciesToUse = this.getRookieName(this.selectedRookieId);
+    }
+    
     // Update the Digimon with basic info from the selection
     this.digimonService.updateDigimon({
-      species: this.getRookieName(this.selectedRookieId),
-      profileImage: this.getRookieSprite(this.selectedRookieId)
+      species: speciesToUse,
+      profileImage: spriteToUse
     });
     
     // Proceed to the next step in the wizard
@@ -272,6 +287,15 @@ export class EvolutionLineSelectionComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+  // Helper methods for template display
+  getRookieSprite(rookieId: string): string {
+    return this.getRookieSpritePath(rookieId);
+  }
+
+  getChampionSprite(championId: string): string {
+    return this.getChampionSpritePath(championId);
   }
 
   // Utility methods

@@ -22,16 +22,17 @@
             <small class="form-hint">This is your partner's individual name.</small>
           </div>
           
-          <div class="form-group required">
+          <div class="form-group">
             <label for="digimon-species">Species:</label>
             <input 
               type="text" 
               id="digimon-species" 
               [(ngModel)]="digimon.species" 
               (change)="updateDigimon()"
-              placeholder="e.g., Agumon, Gabumon, Patamon" 
-              class="form-control">
-            <small class="form-hint">The Digimon species type.</small>
+              placeholder="Species is set from evolution selection" 
+              class="form-control"
+              readonly>
+            <small class="form-hint">Species is automatically set from your evolution line selection.</small>
           </div>
         </div>
 
@@ -102,27 +103,20 @@
       
       <div class="form-sidebar">
         <div class="profile-image-section">
-          <label>Digimon Image</label>
+          <label>Digimon Sprite</label>
           
           <div class="image-container" *ngIf="digimon.profileImage">
-            <img [src]="digimon.profileImage" alt="Digimon Profile" class="profile-preview">
-            <button class="remove-image-button" (click)="removeImage()">Remove</button>
+            <img [src]="digimon.profileImage" alt="Digimon Sprite" class="profile-preview">
+            <div class="sprite-note">
+              <small>This sprite is automatically set from your evolution line selection.</small>
+            </div>
           </div>
           
-          <div class="image-upload" *ngIf="!digimon.profileImage">
-            <label for="profile-image-upload" class="upload-label">
-              <span class="upload-icon">+</span>
-              <span>Upload Image</span>
-            </label>
-            <input 
-              type="file" 
-              id="profile-image-upload" 
-              accept="image/*" 
-              (change)="handleImageUpload($event)" 
-              class="visually-hidden">
+          <div class="no-image-placeholder" *ngIf="!digimon.profileImage">
+            <div class="placeholder-icon">🔮</div>
+            <p>No sprite selected</p>
+            <small>Select an evolution line to set your Digimon's sprite automatically.</small>
           </div>
-          
-          <small class="form-hint">Optional. Maximum size: 2MB.</small>
         </div>
 
         <!-- Stage Information Panel -->
