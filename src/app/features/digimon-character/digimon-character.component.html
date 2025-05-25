@@ -4,39 +4,6 @@
   <div class="wizard-header">
     <h1>Digimon Character Creator</h1>
     
-    <div class="digimon-info" *ngIf="digimon">
-      <div class="digimon-name">
-        <span *ngIf="digimon.name">{{ digimon.name }}</span>
-        <span *ngIf="!digimon.name">{{ getCurrentCreationText() }}</span>
-      </div>
-      
-      <div class="digimon-stage" *ngIf="digimon.stage">
-        {{ digimon.stage }} Stage
-      </div>
-      
-      <div class="digimon-species" *ngIf="digimon.species">
-        {{ digimon.species }}
-      </div>
-      
-      <!-- Evolution Line Progress -->
-      <div class="evolution-progress" *ngIf="characterContext.isEvolutionLine">
-        <div class="progress-text">
-          <span *ngIf="!characterContext.isComplete">Creating {{ characterContext.currentCharacterName }}</span>
-          <span *ngIf="characterContext.isComplete">Evolution Line Complete!</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" 
-               [style.width.%]="characterContext.progress?.percentage || 0"></div>
-        </div>
-        <div class="progress-details">
-          {{ characterContext.progress?.completed || 0 }} / {{ characterContext.progress?.total || 0 }} Complete
-        </div>
-        <div class="evolution-line-name" *ngIf="characterContext.rookieName">
-          {{ characterContext.rookieName }} Evolution Line
-        </div>
-      </div>
-    </div>
-    
     <div class="wizard-actions">
       <button class="action-button save-button" (click)="saveProgress()">
         Save Progress
@@ -78,10 +45,55 @@
   </div>
   
   <div class="wizard-footer">
+    <!-- Compact character info moved to footer -->
+    <div class="character-info-compact" *ngIf="digimon">
+      <div class="character-avatar" *ngIf="digimon.profileImage">
+        <img [src]="digimon.profileImage" [alt]="digimon.name || digimon.species">
+      </div>
+      
+      <div class="character-details">
+        <div class="character-name">
+          <span *ngIf="digimon.name">{{ digimon.name }}</span>
+          <span *ngIf="!digimon.name">{{ getCurrentCreationText() }}</span>
+        </div>
+        
+        <div class="character-meta">
+          <span class="stage-info" *ngIf="digimon.stage">{{ digimon.stage }}</span>
+          <span class="species-info" *ngIf="digimon.species">{{ digimon.species }}</span>
+          <span class="dp-info">{{ digimon.remainingDP }} DP</span>
+        </div>
+      </div>
+      
+      <!-- Evolution Line Progress - Compact Version -->
+      <div class="evolution-progress-compact" *ngIf="characterContext.isEvolutionLine">
+        <div class="progress-indicator">
+          <div class="progress-ring">
+            <svg width="32" height="32" viewBox="0 0 32 32">
+              <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(254, 80, 0, 0.2)" stroke-width="2"/>
+              <circle cx="16" cy="16" r="14" fill="none" stroke="#FE5000" stroke-width="2" 
+                      [attr.stroke-dasharray]="(88 * (characterContext.progress?.percentage || 0) / 100) + ' 88'"
+                      stroke-dashoffset="22" stroke-linecap="round"/>
+            </svg>
+            <span class="progress-text">{{ characterContext.progress?.percentage || 0 }}%</span>
+          </div>
+        </div>
+        
+        <div class="evolution-details">
+          <div class="evolution-status">
+            <span *ngIf="!characterContext.isComplete">Creating {{ characterContext.currentCharacterName }}</span>
+            <span *ngIf="characterContext.isComplete">Evolution Line Complete!</span>
+          </div>
+          <div class="evolution-count">
+            {{ characterContext.progress?.completed || 0 }}/{{ characterContext.progress?.total || 0 }} Complete
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="progress-text">
       Step {{ currentStep + 1 }} of {{ wizardSteps.length }}
       <span *ngIf="characterContext.isEvolutionLine && !characterContext.isComplete" class="evolution-indicator">
-        • Creating {{ characterContext.currentCharacterName }}
+        • {{ characterContext.rookieName }} Line
       </span>
     </div>
     

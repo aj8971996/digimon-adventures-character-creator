@@ -93,6 +93,16 @@ export class DigimonService {
     
     if (!stageConfig) return;
     
+    // Preserve important data from current digimon
+    const preservedData = {
+      profileImage: currentDigimon.profileImage,
+      species: currentDigimon.species,
+      name: currentDigimon.name,
+      description: currentDigimon.description,
+      evolutionLineId: currentDigimon.evolutionLineId,
+      currentStageInLine: currentDigimon.currentStageInLine
+    };
+    
     // Reset stats to minimum for new stage
     const newStats: DigimonStats = {
       accuracy: 1,
@@ -103,7 +113,8 @@ export class DigimonService {
     };
     
     const updatedDigimon: DigimonCharacter = {
-      ...currentDigimon,
+      ...currentDigimon, // Start with current digimon
+      ...preservedData,  // Apply preserved data
       stage,
       stats: newStats,
       remainingDP: stageConfig.startingDP,
