@@ -1,5 +1,6 @@
 // src/app/features/digimon-character/evolution-line-selection/evolution-line-selection.component.scss
 @use '../../../../assets/styles' as s;
+@use "sass:color";
 
 .evolution-line-container {
   max-width: 1000px;
@@ -14,11 +15,13 @@
   padding: 15px;
   margin-bottom: 20px;
   box-shadow: 0 2px 10px rgba(254, 80, 0, 0.1);
+  text-align: center;
   
   p {
-    margin: 5px 0;
+    margin: 0;
     font-weight: 500;
     font-family: s.$font-monospace;
+    color: s.$digi-dark-gray;
   }
 }
 
@@ -28,6 +31,7 @@
   align-items: center;
   margin-bottom: 30px;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .step {
@@ -49,8 +53,8 @@
 }
 
 .step-number {
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   background-color: s.$digi-gray;
   color: white;
@@ -61,6 +65,7 @@
   font-weight: bold;
   margin-bottom: 5px;
   transition: all 0.3s ease;
+  font-size: 14px;
 }
 
 .step-label {
@@ -68,36 +73,58 @@
   text-align: center;
   font-family: s.$font-display;
   color: s.$digi-dark-gray;
+  font-weight: 500;
+}
+
+.step-connector {
+  width: 30px;
+  height: 2px;
+  background-color: s.$digi-gray;
+  margin: 0 5px;
 }
 
 .step-content {
   background-color: white;
   border: 2px solid s.$digi-orange;
   border-radius: 10px;
-  padding: 20px;
+  padding: 30px;
   margin-bottom: 20px;
-  min-height: 200px;
+  min-height: 400px;
 }
 
-.current-step-header h3 {
-  margin: 0 0 15px 0;
-  color: s.$digi-orange;
-  font-family: s.$font-display;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.current-step-header {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  h3 {
+    margin: 0 0 10px 0;
+    color: s.$digi-orange;
+    font-family: s.$font-display;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 1.5rem;
+  }
+  
+  .step-description {
+    margin: 0;
+    color: s.$digi-dark-gray;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
 }
 
-.champion-list {
+// Stage Selection Styles
+.stages-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin: 15px 0;
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
-.champion-option {
-  padding: 15px;
+.stage-option {
+  padding: 20px;
   border: 2px solid s.$digi-gray;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   text-align: center;
   transition: all 0.3s ease;
@@ -106,29 +133,360 @@
   &:hover {
     border-color: s.$digi-orange;
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   }
   
   &.selected {
     border-color: s.$digi-orange;
     background-color: rgba(254, 80, 0, 0.1);
+  }
+  
+  &.required {
+    border-color: s.$digi-green;
+    background-color: rgba(56, 180, 73, 0.1);
+    
+    &.selected {
+      background-color: rgba(56, 180, 73, 0.2);
+    }
+  }
+}
+
+.stage-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  
+  .stage-name {
+    font-weight: bold;
+    font-family: s.$font-display;
     color: s.$digi-orange;
+    font-size: 1.1rem;
+  }
+  
+  .stage-indicator {
+    color: s.$digi-green;
+    font-size: 18px;
     font-weight: bold;
   }
+  
+  .required-indicator {
+    font-size: 10px;
+    color: s.$digi-green;
+    font-weight: 500;
+  }
+}
+
+.stage-description {
+  font-size: 12px;
+  color: s.$digi-dark-gray;
+  line-height: 1.4;
+}
+
+.selection-summary {
+  background-color: rgba(254, 80, 0, 0.05);
+  border: 1px solid rgba(254, 80, 0, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  
+  h4 {
+    margin: 0 0 15px 0;
+    color: s.$digi-orange;
+    font-family: s.$font-display;
+  }
+  
+  .evolution-path {
+    font-family: s.$font-monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: s.$digi-dark-gray;
+  }
+}
+
+// Rookie Selection Styles
+.rookies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.rookie-option {
+  padding: 15px;
+  border: 2px solid s.$digi-gray;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  background-color: white;
+  
+  &:hover {
+    border-color: s.$digi-orange;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+  
+  &.selected {
+    border-color: s.$digi-orange;
+    background-color: rgba(254, 80, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(254, 80, 0, 0.2);
+  }
+}
+
+.rookie-image {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 10px auto;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: s.$digital-screen;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.rookie-name {
+  font-weight: bold;
+  font-family: s.$font-display;
+  color: s.$digi-orange;
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.rookie-evolutions {
+  font-size: 11px;
+  color: s.$digi-dark-gray;
+}
+
+.selected-rookie {
+  background-color: rgba(56, 180, 73, 0.1);
+  border: 2px solid s.$digi-green;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  
+  h4 {
+    margin: 0 0 10px 0;
+    color: s.$digi-green;
+    font-family: s.$font-display;
+  }
+  
+  p {
+    margin: 0;
+    color: s.$digi-dark-gray;
+  }
+}
+
+// Champion Selection Styles
+.champions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.champion-option {
+  padding: 15px;
+  border: 2px solid s.$digi-gray;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  background-color: white;
+  position: relative;
+  
+  &:hover {
+    border-color: s.$digi-orange;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+  
+  &.selected {
+    border-color: s.$digi-orange;
+    background-color: rgba(254, 80, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(254, 80, 0, 0.2);
+  }
+  
+  &.primary {
+    border-color: s.$digital-grid;
+    
+    &.selected {
+      border-color: s.$digi-orange;
+    }
+  }
+}
+
+.champion-image {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 10px auto;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: s.$digital-screen;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.champion-name {
+  font-weight: bold;
+  font-family: s.$font-display;
+  color: s.$digi-orange;
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.champion-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: s.$digital-grid;
+  color: white;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .selected-champion {
   background-color: rgba(56, 180, 73, 0.1);
   border: 2px solid s.$digi-green;
   border-radius: 8px;
-  padding: 15px;
-  margin-top: 15px;
+  padding: 20px;
+  text-align: center;
+  
+  h4 {
+    margin: 0 0 10px 0;
+    color: s.$digi-green;
+    font-family: s.$font-display;
+  }
   
   p {
     margin: 0;
-    color: s.$digi-green;
-    font-weight: bold;
+    color: s.$digi-dark-gray;
+  }
+}
+
+// Confirmation Styles
+.confirm-selection {
+  text-align: center;
+}
+
+.evolution-summary {
+  background-color: s.$digital-screen;
+  border: 2px solid s.$digi-orange;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 20px;
+  
+  h4 {
+    margin: 0 0 25px 0;
+    color: s.$digi-orange;
     font-family: s.$font-display;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 1.3rem;
+  }
+}
+
+.evolution-chain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.evolution-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .stage-info {
+    background-color: white;
+    border: 2px solid s.$digi-orange;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    min-width: 150px;
+    
+    .stage-title {
+      font-family: s.$font-display;
+      font-weight: bold;
+      color: s.$digi-orange;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    
+    .digimon-name {
+      font-weight: bold;
+      color: s.$digi-dark-gray;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+    
+    .digimon-image {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: s.$digital-screen;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+    }
+  }
+}
+
+.evolution-arrow {
+  font-size: 2rem;
+  color: s.$digi-orange;
+  font-weight: bold;
+  margin: 0 10px;
+}
+
+.evolution-details {
+  background-color: rgba(254, 80, 0, 0.05);
+  border: 1px solid rgba(254, 80, 0, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: left;
+  
+  p {
+    margin: 5px 0;
+    font-family: s.$font-monospace;
+    color: s.$digi-dark-gray;
+    
+    strong {
+      color: s.$digi-orange;
+    }
   }
 }
 
@@ -136,22 +494,24 @@
   display: flex;
   justify-content: space-between;
   gap: 10px;
+  margin-top: 20px;
 }
 
 .nav-button {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-family: s.$font-display;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: all 0.2s ease;
+  font-weight: 500;
   
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
   
   &:disabled {
@@ -163,25 +523,53 @@
   &.back-button {
     background-color: s.$digi-light-gray;
     color: s.$digi-dark-gray;
+    
+    &:hover:not(:disabled) {
+      background-color: color.adjust(s.$digi-light-gray, $lightness: -10%);
+    }
   }
   
   &.next-button {
     background-color: s.$digi-orange;
     color: white;
+    
+    &:hover:not(:disabled) {
+      background-color: color.adjust(s.$digi-orange, $lightness: -10%);
+    }
   }
 }
 
-/* Responsive adjustments */
+// Responsive adjustments
 @media (max-width: 768px) {
   .step-progress {
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 5px;
+    
+    .step-connector {
+      width: 2px;
+      height: 20px;
+      margin: 5px 0;
+    }
   }
   
-  .champion-list {
+  .stages-grid, .rookies-grid, .champions-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .evolution-chain {
+    flex-direction: column;
+    
+    .evolution-arrow {
+      transform: rotate(90deg);
+      margin: 10px 0;
+    }
   }
   
   .navigation-buttons {
     flex-direction: column;
+    
+    .nav-button {
+      width: 100%;
+    }
   }
 }

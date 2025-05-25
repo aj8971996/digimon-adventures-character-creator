@@ -3,84 +3,175 @@
   <h2>Evolution Line Selection</h2>
   
   <div class="evolution-info" *ngIf="digimon">
-    <p>Current Digimon: {{ digimon.name || 'Unnamed' }}</p>
-    <p>Stage: {{ digimon.stage }}</p>
+    <p>Configure your Digimon's evolution path and starting form.</p>
   </div>
 
   <!-- Step Progress Indicator -->
   <div class="step-progress">
     <div class="step" [class.active]="isStepActive('stages')" [class.completed]="isStepCompleted('stages')">
       <div class="step-number">1</div>
-      <div class="step-label">Select Stages</div>
+      <div class="step-label">Stages</div>
     </div>
     
-    <div class="step" 
-         [class.active]="isStepActive('split')" 
-         [class.completed]="isStepCompleted('split')"
-         *ngIf="selectedStages.length > 1">
+    <div class="step-connector"></div>
+    
+    <div class="step" [class.active]="isStepActive('rookie')" [class.completed]="isStepCompleted('rookie')">
       <div class="step-number">2</div>
-      <div class="step-label">Split Evolution</div>
+      <div class="step-label">Rookie</div>
     </div>
     
-    <div class="step" 
-         [class.active]="isStepActive('rookie')" 
-         [class.completed]="isStepCompleted('rookie')">
-      <div class="step-number">3</div>
-      <div class="step-label">Choose Rookie</div>
-    </div>
+    <div class="step-connector" *ngIf="stagesIncludesChampion()"></div>
     
     <div class="step" 
          [class.active]="isStepActive('champion')" 
          [class.completed]="isStepCompleted('champion')"
          *ngIf="stagesIncludesChampion()">
-      <div class="step-number">4</div>
-      <div class="step-label">Choose Champion</div>
+      <div class="step-number">3</div>
+      <div class="step-label">Champion</div>
+    </div>
+    
+    <div class="step-connector"></div>
+    
+    <div class="step" [class.active]="isStepActive('confirm')" [class.completed]="isStepCompleted('confirm')">
+      <div class="step-number">{{ stagesIncludesChampion() ? '4' : '3' }}</div>
+      <div class="step-label">Confirm</div>
     </div>
   </div>
 
   <!-- Step Content -->
   <div class="step-content">
     <div class="current-step-header">
-      <h3>
-        <span *ngIf="isStepActive('stages')">Select Stages</span>
-        <span *ngIf="isStepActive('split')">Split Evolution</span>
-        <span *ngIf="isStepActive('rookie')">Choose Rookie</span>
-        <span *ngIf="isStepActive('champion')">Choose Champion</span>
-      </h3>
+      <h3>{{ getStepTitle() }}</h3>
+      <p class="step-description">{{ getStepDescription() }}</p>
     </div>
 
     <!-- Stage Selection Content -->
     <div *ngIf="isStepActive('stages')" class="stages-selection">
-      <p>Select the evolution stages you want to include in your line:</p>
-      <!-- Add your stage selection UI here -->
-    </div>
-
-    <!-- Split Evolution Content -->
-    <div *ngIf="isStepActive('split')" class="split-selection">
-      <p>Configure split evolution options:</p>
-      <!-- Add your split evolution UI here -->
+      <div class="stages-grid">
+        <div *ngFor="let stage of availableStages" 
+             class="stage-option"
+             [class.selected]="isStageSelected(stage)"
+             [class.required]="stage === 'Rookie'"
+             (click)="toggleStage(stage)">
+          
+          <div class="stage-header">
+            <span class="stage-name">{{ stage }}</span>
+            <span class="stage-indicator" *ngIf="isStageSelected(stage)">✓</span>
+            <span class="required-indicator" *ngIf="stage === 'Rookie'">(Required)</span>
+          </div>
+          
+          <div class="stage-description">
+            <span *ngIf="stage === 'Rookie'">Your starting Digimon form</span>
+            <span *ngIf="stage === 'Champion'">First evolution stage</span>
+            <span *ngIf="stage === 'Ultimate'">Second evolution stage</span>
+            <span *ngIf="stage === 'Mega'">Final evolution stage</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="selection-summary" *ngIf="selectedStages.length > 0">
+        <h4>Selected Evolution Path:</h4>
+        <div class="evolution-path">
+          <span *ngFor="let stage of selectedStages; let last = last">
+            {{ stage }}<span *ngIf="!last"> → </span>
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- Rookie Selection Content -->
     <div *ngIf="isStepActive('rookie')" class="rookie-selection">
-      <p>Choose your Rookie Digimon:</p>
-      <!-- Add your rookie selection UI here -->
+      <div class="rookies-grid">
+        <div *ngFor="let rookieOption of availableRookies" 
+             class="rookie-option"
+             [class.selected]="selectedRookieId === rookieOption.rookieId"
+             (click)="selectRookie(rookieOption.rookieId)">
+          
+          <div class="rookie-image" *ngIf="rookieOption.rookieSprite">
+            <img [src]="assetService.getRookieSpritePath(rookieOption.rookieSprite)" 
+                 [alt]="rookieOption.rookieName" 
+                 onerror="this.style.display='none'">
+          </div>
+          
+          <div class="rookie-name">{{ rookieOption.rookieName }}</div>
+          
+          <div class="rookie-evolutions">
+            <small>{{ rookieOption.championOptions.length }} evolution option{{ rookieOption.championOptions.length !== 1 ? 's' : '' }}</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="selected-rookie" *ngIf="selectedRookieId">
+        <h4>Selected: {{ getRookieName(selectedRookieId) }}</h4>
+        <p>This Rookie has {{ availableChampions.length }} possible Champion evolution{{ availableChampions.length !== 1 ? 's' : '' }}.</p>
+      </div>
     </div>
 
     <!-- Champion Selection Content -->
     <div *ngIf="isStepActive('champion')" class="champion-selection">
-      <p>Choose your Champion Digimon:</p>
-      <div class="champion-list">
+      <div class="champions-grid">
         <div *ngFor="let champion of availableChampions" 
              class="champion-option"
-             [class.selected]="championId === champion.id"
-             (click)="championId = champion.id">
-          <span>{{ champion.name }}</span>
+             [class.selected]="selectedChampionId === champion.id"
+             [class.primary]="champion.isPrimary"
+             (click)="selectChampion(champion.id)">
+          
+          <div class="champion-image" *ngIf="champion.sprite">
+            <img [src]="assetService.getChampionSpritePath(champion.sprite)" 
+                 [alt]="champion.name"
+                 onerror="this.style.display='none'">
+          </div>
+          
+          <div class="champion-name">{{ champion.name }}</div>
+          
+          <div class="champion-badge" *ngIf="champion.isPrimary">
+            Primary Evolution
+          </div>
         </div>
       </div>
       
-      <div *ngIf="championId" class="selected-champion">
-        <p>Selected Champion: {{ getChampionName(championId) }}</p>
+      <div class="selected-champion" *ngIf="selectedChampionId">
+        <h4>Selected: {{ getChampionName(selectedChampionId) }}</h4>
+        <p>{{ getRookieName(selectedRookieId) }} will evolve into {{ getChampionName(selectedChampionId) }}.</p>
+      </div>
+    </div>
+
+    <!-- Confirmation Content -->
+    <div *ngIf="isStepActive('confirm')" class="confirm-selection">
+      <div class="evolution-summary">
+        <h4>Evolution Line Summary</h4>
+        
+        <div class="evolution-chain">
+          <div class="evolution-stage">
+            <div class="stage-info">
+              <div class="stage-title">Rookie</div>
+              <div class="digimon-name">{{ getRookieName(selectedRookieId) }}</div>
+              <div class="digimon-image" *ngIf="getRookieSprite(selectedRookieId)">
+                <img [src]="getRookieSprite(selectedRookieId)" [alt]="getRookieName(selectedRookieId)"
+                     onerror="this.style.display='none'">
+              </div>
+            </div>
+          </div>
+          
+          <div class="evolution-arrow" *ngIf="stagesIncludesChampion()">→</div>
+          
+          <div class="evolution-stage" *ngIf="stagesIncludesChampion()">
+            <div class="stage-info">
+              <div class="stage-title">Champion</div>
+              <div class="digimon-name">{{ getChampionName(selectedChampionId) }}</div>
+              <div class="digimon-image" *ngIf="getChampionSprite(selectedChampionId)">
+                <img [src]="getChampionSprite(selectedChampionId)" [alt]="getChampionName(selectedChampionId)"
+                     onerror="this.style.display='none'">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="evolution-details">
+          <p><strong>Evolution Stages:</strong> {{ selectedStages.join(' → ') }}</p>
+          <p *ngIf="availableChampions.length > 1"><strong>Split Evolution:</strong> Yes ({{ availableChampions.length }} options)</p>
+          <p *ngIf="availableChampions.length <= 1"><strong>Split Evolution:</strong> No</p>
+        </div>
       </div>
     </div>
   </div>
@@ -90,7 +181,7 @@
     <button 
       type="button"
       class="nav-button back-button"
-      (click)="goBack()"
+      (click)="previousStep()"
       [disabled]="isStepActive('stages')">
       Back
     </button>
@@ -98,9 +189,9 @@
     <button 
       type="button"
       class="nav-button next-button"
-      (click)="proceed()"
-      [disabled]="!canProceed()">
-      {{ isStepActive('champion') ? 'Start Creation' : 'Continue' }}
+      (click)="nextStep()"
+      [disabled]="!canProceedFromCurrentStep()">
+      {{ isStepActive('confirm') ? 'Start Character Creation' : 'Continue' }}
     </button>
   </div>
 </div>
