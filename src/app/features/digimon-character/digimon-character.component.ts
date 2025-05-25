@@ -27,6 +27,7 @@ export class DigimonCharacterComponent implements OnInit, OnDestroy {
   ];
   
   digimon: DigimonCharacter | null = null;
+  characterContext: any = { isEvolutionLine: false };
   private subscription: Subscription = new Subscription();
   
   constructor(

@@ -4,22 +4,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DigimonService } from '../../../core/services/digimon.service';
 import { DigimonCharacterWizardService } from '../digimon-character-wizard.service';
+import { EvolutionLineManagerService } from '../../../core/services/evolution-line-manager.service';
 import { AssetService } from '../../../core/services/asset.service';
 import { DigimonCharacter } from '../../../core/models/digimon-character';
 import { DigimonStage } from '../../../core/models/digimon-stage';
 import { DIGIMON_EVOLUTION_LINES } from '../../../data/digimon-evolution-lines';
 
 type WizardStep = 'stages' | 'rookie' | 'champion' | 'confirm';
-
-interface EvolutionLineSelection {
-  stages: DigimonStage[];
-  rookieId: string;
-  rookieName: string;
-  rookieSprite?: string;
-  championOptions: { id: string; name: string; sprite?: string }[];
-  selectedChampion?: string;
-  hasSplitEvolution: boolean;
-}
 
 @Component({
   selector: 'app-evolution-line-selection',
@@ -32,19 +23,18 @@ export class EvolutionLineSelectionComponent implements OnInit {
   digimon: DigimonCharacter | null = null;
   currentStep: WizardStep = 'stages';
   
-  // Available stages for selection - ONLY Rookie and Champion for now
+  // Available stages for selection
   availableStages = [
     DigimonStage.Rookie,
     DigimonStage.Champion
-    // Disabled for now since we don't have sprites:
-    // DigimonStage.Ultimate,
-    // DigimonStage.Mega
+    // Ultimate and Mega disabled for now
   ];
   
   // Current selection state
   selectedStages: DigimonStage[] = [DigimonStage.Rookie]; // Default to Rookie
   selectedRookieId: string = '';
-  selectedChampionId: string = '';
+  selectedChampionIds: string[] = []; // Changed to array for multiple selection
+  allowNoEvolution: boolean = false; // New option for single-stage Digimon
   
   // Available evolution data
   availableRookies = DIGIMON_EVOLUTION_LINES;
@@ -53,6 +43,7 @@ export class EvolutionLineSelectionComponent implements OnInit {
   constructor(
     private digimonService: DigimonService,
     private wizardService: DigimonCharacterWizardService,
+    private evolutionLineManager: EvolutionLineManagerService,
     public assetService: AssetService
   ) {}
 
@@ -60,11 +51,11 @@ export class EvolutionLineSelectionComponent implements OnInit {
     this.digimon = this.digimonService.getCurrentDigimon();
     
     // Load any existing evolution line selection
-    const savedSelection = this.digimonService.getEvolutionLineSelection();
-    if (savedSelection) {
-      this.selectedStages = savedSelection.stages;
-      this.selectedRookieId = savedSelection.rookieId;
-      this.selectedChampionId = savedSelection.selectedChampion || '';
+    const savedEvolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+    if (savedEvolutionLine) {
+      this.selectedStages = savedEvolutionLine.selectedStages;
+      this.selectedRookieId = savedEvolutionLine.rookieId;
+      this.selectedChampionIds = savedEvolutionLine.selectedChampions;
       this.updateAvailableChampions();
     }
   }
@@ -77,11 +68,11 @@ export class EvolutionLineSelectionComponent implements OnInit {
   isStepCompleted(step: WizardStep): boolean {
     switch (step) {
       case 'stages':
-        return this.selectedStages.length > 0;
+        return this.selectedStages.length > 0 || this.allowNoEvolution;
       case 'rookie':
         return !!this.selectedRookieId;
       case 'champion':
-        return !this.stagesIncludesChampion() || !!this.selectedChampionId;
+        return !this.stagesIncludesChampion() || this.selectedChampionIds.length > 0;
       case 'confirm':
         return false; // Never completed until we proceed
       default:
@@ -97,8 +88,8 @@ export class EvolutionLineSelectionComponent implements OnInit {
   toggleStage(stage: DigimonStage): void {
     const index = this.selectedStages.indexOf(stage);
     if (index > -1) {
-      // Don't allow removing Rookie as it's required
-      if (stage !== DigimonStage.Rookie) {
+      // Don't allow removing Rookie as it's required (unless no evolution is allowed)
+      if (stage !== DigimonStage.Rookie || this.allowNoEvolution) {
         this.selectedStages.splice(index, 1);
       }
     } else {
@@ -112,8 +103,16 @@ export class EvolutionLineSelectionComponent implements OnInit {
     
     // Reset selections if stages change
     this.selectedRookieId = '';
-    this.selectedChampionId = '';
+    this.selectedChampionIds = [];
     this.availableChampions = [];
+  }
+
+  toggleNoEvolution(): void {
+    this.allowNoEvolution = !this.allowNoEvolution;
+    if (this.allowNoEvolution) {
+      // If no evolution, only keep Rookie
+      this.selectedStages = [DigimonStage.Rookie];
+    }
   }
 
   stagesIncludesChampion(): boolean {
@@ -123,7 +122,7 @@ export class EvolutionLineSelectionComponent implements OnInit {
   // Rookie selection methods
   selectRookie(rookieId: string): void {
     this.selectedRookieId = rookieId;
-    this.selectedChampionId = ''; // Reset champion selection
+    this.selectedChampionIds = []; // Reset champion selection
     this.updateAvailableChampions();
   }
 
@@ -143,9 +142,20 @@ export class EvolutionLineSelectionComponent implements OnInit {
     return spriteName ? this.assetService.getRookieSpritePath(spriteName) : '';
   }
 
-  // Champion selection methods
-  selectChampion(championId: string): void {
-    this.selectedChampionId = championId;
+  // Champion selection methods - updated for multiple selection
+  toggleChampion(championId: string): void {
+    const index = this.selectedChampionIds.indexOf(championId);
+    if (index > -1) {
+      // Remove from selection
+      this.selectedChampionIds.splice(index, 1);
+    } else {
+      // Add to selection
+      this.selectedChampionIds.push(championId);
+    }
+  }
+
+  isChampionSelected(championId: string): boolean {
+    return this.selectedChampionIds.includes(championId);
   }
 
   getChampionName(championId: string): string {
@@ -163,11 +173,11 @@ export class EvolutionLineSelectionComponent implements OnInit {
   canProceedFromCurrentStep(): boolean {
     switch (this.currentStep) {
       case 'stages':
-        return this.selectedStages.length > 0;
+        return this.selectedStages.length > 0 || this.allowNoEvolution;
       case 'rookie':
         return !!this.selectedRookieId;
       case 'champion':
-        return !this.stagesIncludesChampion() || !!this.selectedChampionId;
+        return !this.stagesIncludesChampion() || this.selectedChampionIds.length > 0;
       case 'confirm':
         return true;
       default:
@@ -217,44 +227,64 @@ export class EvolutionLineSelectionComponent implements OnInit {
   }
 
   finishSelection(): void {
-    // Save the evolution line selection
-    const selection: EvolutionLineSelection = {
-      stages: [...this.selectedStages],
+    if (this.allowNoEvolution) {
+      // Create single-stage Digimon
+      this.createSingleStageDigimon();
+    } else {
+      // Initialize evolution line
+      this.initializeEvolutionLine();
+    }
+  }
+
+  private createSingleStageDigimon(): void {
+    // Set up the Digimon for single-stage creation
+    this.digimonService.setStage(DigimonStage.Rookie);
+    
+    const rookieSprite = this.getRookieSpritePath(this.selectedRookieId);
+    const rookieName = this.getRookieName(this.selectedRookieId);
+    
+    // Update the Digimon with basic info
+    this.digimonService.updateDigimon({
+      species: rookieName,
+      profileImage: rookieSprite
+    });
+    
+    // Proceed to basic info step
+    this.wizardService.nextStep();
+  }
+
+  private initializeEvolutionLine(): void {
+    // Initialize the evolution line manager
+    this.evolutionLineManager.initializeEvolutionLine({
       rookieId: this.selectedRookieId,
       rookieName: this.getRookieName(this.selectedRookieId),
       rookieSprite: this.getRookieSpritePath(this.selectedRookieId),
-      championOptions: [...this.availableChampions],
-      selectedChampion: this.selectedChampionId,
-      hasSplitEvolution: this.availableChampions.length > 1
-    };
-    
-    this.digimonService.setEvolutionLineSelection(selection);
-    
-    // Set up the initial Digimon based on the selection
-    // Start with Rookie stage
-    this.digimonService.setStage(DigimonStage.Rookie);
-    
-    // Determine which sprite and species to use
-    let spriteToUse = '';
-    let speciesToUse = '';
-    
-    if (this.stagesIncludesChampion() && this.selectedChampionId) {
-      // If Champion is selected, use Champion sprite and name
-      spriteToUse = this.getChampionSpritePath(this.selectedChampionId);
-      speciesToUse = this.getChampionName(this.selectedChampionId);
-    } else {
-      // Otherwise use Rookie sprite and name
-      spriteToUse = this.getRookieSpritePath(this.selectedRookieId);
-      speciesToUse = this.getRookieName(this.selectedRookieId);
+      selectedStages: [...this.selectedStages],
+      selectedChampions: [...this.selectedChampionIds],
+      championOptions: [...this.availableChampions]
+    });
+
+    // Start with the first stage to create (always Rookie)
+    const nextToCreate = this.evolutionLineManager.getNextToCreate();
+    if (nextToCreate) {
+      this.evolutionLineManager.setCurrentEditing(nextToCreate.stage, nextToCreate.evolutionId);
+      
+      // Set up Digimon service for the first character
+      this.digimonService.setStage(nextToCreate.stage);
+      
+      // For Rookie, use rookie sprite and name
+      if (nextToCreate.stage === DigimonStage.Rookie) {
+        const rookieSprite = this.getRookieSpritePath(this.selectedRookieId);
+        const rookieName = this.getRookieName(this.selectedRookieId);
+        
+        this.digimonService.updateDigimon({
+          species: rookieName,
+          profileImage: rookieSprite
+        });
+      }
     }
     
-    // Update the Digimon with basic info from the selection
-    this.digimonService.updateDigimon({
-      species: speciesToUse,
-      profileImage: spriteToUse
-    });
-    
-    // Proceed to the next step in the wizard
+    // Proceed to basic info step
     this.wizardService.nextStep();
   }
 
@@ -266,7 +296,7 @@ export class EvolutionLineSelectionComponent implements OnInit {
       case 'rookie':
         return 'Choose Your Rookie Digimon';
       case 'champion':
-        return 'Choose Champion Evolution';
+        return 'Choose Champion Evolution(s)';
       case 'confirm':
         return 'Confirm Evolution Line';
       default:
@@ -277,11 +307,11 @@ export class EvolutionLineSelectionComponent implements OnInit {
   getStepDescription(): string {
     switch (this.currentStep) {
       case 'stages':
-        return 'Select which evolution stages you want to include in your Digimon\'s evolution line.';
+        return 'Select which evolution stages you want to include, or create a single-stage Digimon.';
       case 'rookie':
         return 'Choose the Rookie Digimon that will be the foundation of your evolution line.';
       case 'champion':
-        return 'Select which Champion your Rookie will evolve into.';
+        return 'Select one or more Champions for split evolution paths. Select multiple for branching evolution.';
       case 'confirm':
         return 'Review your evolution line selection and proceed to character creation.';
       default:
@@ -296,6 +326,14 @@ export class EvolutionLineSelectionComponent implements OnInit {
 
   getChampionSprite(championId: string): string {
     return this.getChampionSpritePath(championId);
+  }
+
+  getSelectedChampionNames(): string[] {
+    return this.selectedChampionIds.map(id => this.getChampionName(id));
+  }
+
+  isSplitEvolution(): boolean {
+    return this.selectedChampionIds.length > 1;
   }
 
   // Utility methods

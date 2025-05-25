@@ -47,16 +47,30 @@
 
     <!-- Stage Selection Content -->
     <div *ngIf="isStepActive('stages')" class="stages-selection">
-      <div class="stages-grid">
+      <!-- No Evolution Option -->
+      <div class="no-evolution-option">
+        <label class="checkbox-option">
+          <input type="checkbox" [(ngModel)]="allowNoEvolution" (change)="toggleNoEvolution()">
+          <span class="checkmark"></span>
+          <span class="option-text">Create single-stage Digimon (no evolution)</span>
+        </label>
+        <p class="option-description">Choose this if you want to create only one Digimon without evolution lines.</p>
+      </div>
+
+      <div class="divider">OR</div>
+
+      <!-- Evolution Stages -->
+      <div class="stages-grid" [class.disabled]="allowNoEvolution">
         <div *ngFor="let stage of availableStages" 
              class="stage-option"
              [class.selected]="isStageSelected(stage)"
              [class.required]="stage === 'Rookie'"
-             (click)="toggleStage(stage)">
+             [class.disabled]="allowNoEvolution"
+             (click)="!allowNoEvolution && toggleStage(stage)">
           
           <div class="stage-header">
             <span class="stage-name">{{ stage }}</span>
-            <span class="stage-indicator" *ngIf="isStageSelected(stage)">✓</span>
+            <span class="stage-indicator" *ngIf="isStageSelected(stage) && !allowNoEvolution">✓</span>
             <span class="required-indicator" *ngIf="stage === 'Rookie'">(Required)</span>
           </div>
           
@@ -69,12 +83,15 @@
         </div>
       </div>
       
-      <div class="selection-summary" *ngIf="selectedStages.length > 0">
-        <h4>Selected Evolution Path:</h4>
-        <div class="evolution-path">
+      <div class="selection-summary" *ngIf="(selectedStages.length > 0 && !allowNoEvolution) || allowNoEvolution">
+        <h4>Selected Path:</h4>
+        <div class="evolution-path" *ngIf="!allowNoEvolution">
           <span *ngFor="let stage of selectedStages; let last = last">
             {{ stage }}<span *ngIf="!last"> → </span>
           </span>
+        </div>
+        <div class="evolution-path" *ngIf="allowNoEvolution">
+          Single-stage Rookie only
         </div>
       </div>
     </div>
@@ -103,18 +120,29 @@
       
       <div class="selected-rookie" *ngIf="selectedRookieId">
         <h4>Selected: {{ getRookieName(selectedRookieId) }}</h4>
-        <p>This Rookie has {{ availableChampions.length }} possible Champion evolution{{ availableChampions.length !== 1 ? 's' : '' }}.</p>
+        <p *ngIf="!allowNoEvolution">This Rookie has {{ availableChampions.length }} possible Champion evolution{{ availableChampions.length !== 1 ? 's' : '' }}.</p>
+        <p *ngIf="allowNoEvolution">This will be your single-stage Digimon.</p>
       </div>
     </div>
 
     <!-- Champion Selection Content -->
     <div *ngIf="isStepActive('champion')" class="champion-selection">
+      <div class="split-evolution-info">
+        <h4>Split Evolution</h4>
+        <p>Select multiple Champions to create split evolution paths. Each selected Champion will be a separate character sheet.</p>
+        <p class="current-selection">Currently selected: {{ selectedChampionIds.length }} Champion{{ selectedChampionIds.length !== 1 ? 's' : '' }}</p>
+      </div>
+
       <div class="champions-grid">
         <div *ngFor="let champion of availableChampions" 
              class="champion-option"
-             [class.selected]="selectedChampionId === champion.id"
+             [class.selected]="isChampionSelected(champion.id)"
              [class.primary]="champion.isPrimary"
-             (click)="selectChampion(champion.id)">
+             (click)="toggleChampion(champion.id)">
+          
+          <div class="selection-indicator" *ngIf="isChampionSelected(champion.id)">
+            <span class="checkmark">✓</span>
+          </div>
           
           <div class="champion-image" *ngIf="champion.sprite">
             <img [src]="assetService.getChampionSpritePath(champion.sprite)" 
@@ -130,9 +158,16 @@
         </div>
       </div>
       
-      <div class="selected-champion" *ngIf="selectedChampionId">
-        <h4>Selected: {{ getChampionName(selectedChampionId) }}</h4>
-        <p>{{ getRookieName(selectedRookieId) }} will evolve into {{ getChampionName(selectedChampionId) }}.</p>
+      <div class="selected-champions" *ngIf="selectedChampionIds.length > 0">
+        <h4>Selected Champions:</h4>
+        <div class="selected-list">
+          <span *ngFor="let championId of selectedChampionIds; let last = last" class="selected-champion">
+            {{ getChampionName(championId) }}<span *ngIf="!last">, </span>
+          </span>
+        </div>
+        <p *ngIf="isSplitEvolution()" class="split-note">
+          <strong>Split Evolution:</strong> You'll create separate character sheets for each selected Champion.
+        </p>
       </div>
     </div>
 
@@ -141,7 +176,23 @@
       <div class="evolution-summary">
         <h4>Evolution Line Summary</h4>
         
-        <div class="evolution-chain">
+        <!-- Single Stage Summary -->
+        <div class="single-stage-summary" *ngIf="allowNoEvolution">
+          <div class="evolution-stage">
+            <div class="stage-info">
+              <div class="stage-title">Single-Stage Digimon</div>
+              <div class="digimon-name">{{ getRookieName(selectedRookieId) }}</div>
+              <div class="digimon-image" *ngIf="getRookieSprite(selectedRookieId)">
+                <img [src]="getRookieSprite(selectedRookieId)" [alt]="getRookieName(selectedRookieId)"
+                     onerror="this.style.display='none'">
+              </div>
+            </div>
+          </div>
+          <p class="single-stage-note">This Digimon will not have evolution capabilities.</p>
+        </div>
+        
+        <!-- Evolution Line Summary -->
+        <div class="evolution-chain" *ngIf="!allowNoEvolution">
           <div class="evolution-stage">
             <div class="stage-info">
               <div class="stage-title">Rookie</div>
@@ -157,20 +208,39 @@
           
           <div class="evolution-stage" *ngIf="stagesIncludesChampion()">
             <div class="stage-info">
-              <div class="stage-title">Champion</div>
-              <div class="digimon-name">{{ getChampionName(selectedChampionId) }}</div>
-              <div class="digimon-image" *ngIf="getChampionSprite(selectedChampionId)">
-                <img [src]="getChampionSprite(selectedChampionId)" [alt]="getChampionName(selectedChampionId)"
-                     onerror="this.style.display='none'">
+              <div class="stage-title">Champion{{ selectedChampionIds.length > 1 ? 's' : '' }}</div>
+              <div class="champions-list" *ngIf="selectedChampionIds.length > 1">
+                <div *ngFor="let championId of selectedChampionIds" class="champion-option-summary">
+                  <div class="digimon-name">{{ getChampionName(championId) }}</div>
+                  <div class="digimon-image" *ngIf="getChampionSprite(championId)">
+                    <img [src]="getChampionSprite(championId)" [alt]="getChampionName(championId)"
+                         onerror="this.style.display='none'">
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="selectedChampionIds.length === 1">
+                <div class="digimon-name">{{ getChampionName(selectedChampionIds[0]) }}</div>
+                <div class="digimon-image" *ngIf="getChampionSprite(selectedChampionIds[0])">
+                  <img [src]="getChampionSprite(selectedChampionIds[0])" [alt]="getChampionName(selectedChampionIds[0])"
+                       onerror="this.style.display='none'">
+                </div>
               </div>
             </div>
           </div>
         </div>
         
-        <div class="evolution-details">
+        <div class="evolution-details" *ngIf="!allowNoEvolution">
           <p><strong>Evolution Stages:</strong> {{ selectedStages.join(' → ') }}</p>
-          <p *ngIf="availableChampions.length > 1"><strong>Split Evolution:</strong> Yes ({{ availableChampions.length }} options)</p>
-          <p *ngIf="availableChampions.length <= 1"><strong>Split Evolution:</strong> No</p>
+          <p><strong>Split Evolution:</strong> {{ isSplitEvolution() ? 'Yes (' + selectedChampionIds.length + ' Champions)' : 'No' }}</p>
+          <p><strong>Character Sheets to Create:</strong> {{ selectedStages.length + (selectedChampionIds.length > 1 ? selectedChampionIds.length - 1 : 0) }}</p>
+        </div>
+
+        <div class="creation-order" *ngIf="!allowNoEvolution">
+          <h5>Creation Order:</h5>
+          <ol>
+            <li>{{ getRookieName(selectedRookieId) }} (Rookie)</li>
+            <li *ngFor="let championId of selectedChampionIds">{{ getChampionName(championId) }} (Champion)</li>
+          </ol>
         </div>
       </div>
     </div>

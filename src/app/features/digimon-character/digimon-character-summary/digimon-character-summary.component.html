@@ -1,6 +1,48 @@
 <!-- src/app/features/digimon-character/digimon-character-summary/digimon-character-summary.component.html -->
 <div class="digimon-summary-container">
-  <h2 class="digital-heading">Digimon Summary</h2>
+  <h2 class="digital-heading">
+    {{ isEvolutionLine ? 'Evolution Line Summary' : 'Digimon Summary' }}
+  </h2>
+
+  <!-- Evolution Line Progress (if applicable) -->
+  <div class="evolution-progress" *ngIf="isEvolutionLine && evolutionSummary">
+    <div class="progress-header">
+      <h3>{{ evolutionSummary.rookieName }} Evolution Line</h3>
+      <div class="progress-stats">
+        <span class="completed">{{ getEvolutionLineProgress().completed }}</span> / 
+        <span class="total">{{ getEvolutionLineProgress().total }}</span> Characters Created
+        ({{ getEvolutionLineProgress().percentage }}%)
+      </div>
+    </div>
+    
+    <div class="evolution-chain-nav">
+      <div *ngFor="let character of evolutionLineCharacters; let i = index" 
+           class="character-nav-item"
+           [class.active]="i === currentViewingIndex"
+           (click)="goToCharacter(i)">
+        <div class="nav-character-image" *ngIf="character.profileImage">
+          <img [src]="character.profileImage" [alt]="character.name || character.species">
+        </div>
+        <div class="nav-character-info">
+          <div class="nav-character-name">{{ character.name || character.species }}</div>
+          <div class="nav-character-stage">{{ character.stage }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character Navigation Controls -->
+    <div class="character-navigation" *ngIf="evolutionLineCharacters.length > 1">
+      <button class="nav-btn" (click)="previousCharacter()" [disabled]="currentViewingIndex === 0">
+        ← Previous
+      </button>
+      <span class="nav-info">
+        Viewing {{ currentViewingIndex + 1 }} of {{ evolutionLineCharacters.length }}
+      </span>
+      <button class="nav-btn" (click)="nextCharacter()" [disabled]="currentViewingIndex === evolutionLineCharacters.length - 1">
+        Next →
+      </button>
+    </div>
+  </div>
 
   <div class="validation-errors" *ngIf="validationErrors.length > 0">
     <h3>Please Fix the Following Issues:</h3>
@@ -10,41 +52,52 @@
   </div>
 
   <div class="save-success" *ngIf="showSaveSuccess">
-    <p>Digimon saved successfully!</p>
+    <p>{{ isEvolutionLine ? 'Evolution line' : 'Digimon' }} saved successfully!</p>
   </div>
 
-  <div class="digimon-sheet digital-display-panel" *ngIf="digimon">
+  <!-- Current Character Display -->
+  <div class="digimon-sheet digital-display-panel" 
+       *ngIf="(isEvolutionLine && getCurrentViewingCharacter()) || (!isEvolutionLine && digimon)">
+    
+    <!-- Use current viewing character for evolution line, or single digimon -->
+    <ng-container *ngTemplateOutlet="characterSheet; context: { 
+      $implicit: isEvolutionLine ? getCurrentViewingCharacter() : digimon 
+    }"></ng-container>
+  </div>
+
+  <!-- Character Sheet Template -->
+  <ng-template #characterSheet let-character>
     <!-- Digimon Header with Digital Elements -->
     <div class="digimon-header">
       <div class="digimon-basic-info">
-        <h3 class="panel-title">{{ digimon.name || 'Unnamed Digimon' }}</h3>
+        <h3 class="panel-title">{{ character.name || character.species || 'Unnamed Digimon' }}</h3>
         <div class="digital-stat">
           <span class="stat-label">Species:</span>
-          <span class="stat-value">{{ digimon.species || 'Not set' }}</span>
+          <span class="stat-value">{{ character.species || 'Not set' }}</span>
         </div>
         <div class="digital-stat">
           <span class="stat-label">Stage:</span>
-          <span class="stat-value">{{ digimon.stage }}</span>
+          <span class="stat-value">{{ character.stage }}</span>
         </div>
         <div class="digital-stat">
           <span class="stat-label">Attribute:</span>
-          <span class="stat-value">{{ digimon.attribute }}</span>
+          <span class="stat-value">{{ character.attribute }}</span>
         </div>
         <div class="digital-stat">
           <span class="stat-label">Field:</span>
-          <span class="stat-value">{{ digimon.field }}</span>
+          <span class="stat-value">{{ character.field }}</span>
         </div>
         <div class="digital-stat">
           <span class="stat-label">Size:</span>
-          <span class="stat-value">{{ digimon.size }}</span>
+          <span class="stat-value">{{ character.size }}</span>
         </div>
       </div>
 
-      <div class="digimon-rotating-circle" *ngIf="digimon.profileImage">
-        <div class="digital-circle">
+      <div class="digimon-rotating-circle" *ngIf="character.profileImage">
+        <div class="digital-circle" [class.evolution-highlight]="isEvolutionLine">
           <div class="inner-circle">
             <div class="circle-content">
-              <img [src]="digimon.profileImage" alt="Digimon Profile" />
+              <img [src]="character.profileImage" alt="Digimon Profile" />
             </div>
           </div>
           <div class="circle-dots">
@@ -61,8 +114,8 @@
         <h4 class="panel-header">Base Stats</h4>
         <div class="panel-content">
           <ul class="digital-list">
-            <li *ngFor="let stat of digimon.stats | keyvalue" class="digital-list-item">
-              <span class="item-label">{{ stat.key | titlecase }}:</span>
+            <li *ngFor="let stat of character.stats | keyvalue" class="digital-list-item">
+              <span class="item-label">{{ formatStatName(stat.key) }}:</span>
               <span class="item-value">{{ stat.value }}</span>
             </li>
             <li class="digital-list-item total">
@@ -78,8 +131,8 @@
         <h4 class="panel-header">Derived Stats</h4>
         <div class="panel-content">
           <ul class="digital-list">
-            <li *ngFor="let stat of digimon.derivedStats | keyvalue" class="digital-list-item">
-              <span class="item-label">{{ stat.key | titlecase }}:</span>
+            <li *ngFor="let stat of character.derivedStats | keyvalue" class="digital-list-item">
+              <span class="item-label">{{ formatStatName(stat.key) }}:</span>
               <span class="item-value">{{ stat.value }}</span>
             </li>
           </ul>
@@ -93,20 +146,20 @@
           <ul class="digital-list">
             <li class="digital-list-item">
               <span class="item-label">Stats DP:</span>
-              <span class="item-value">{{ digimon.spentStatsDP }}</span>
+              <span class="item-value">{{ character.spentStatsDP }}</span>
             </li>
             <li class="digital-list-item">
               <span class="item-label">Qualities DP:</span>
-              <span class="item-value">{{ digimon.spentQualitiesDP }}</span>
+              <span class="item-value">{{ character.spentQualitiesDP }}</span>
             </li>
             <li class="digital-list-item">
               <span class="item-label">Remaining DP:</span>
               <span
                 class="item-value"
-                [class.warning]="digimon.remainingDP > 0"
-                [class.error]="digimon.remainingDP < 0"
+                [class.warning]="character.remainingDP > 0"
+                [class.error]="character.remainingDP < 0"
               >
-                {{ digimon.remainingDP }}
+                {{ character.remainingDP }}
               </span>
             </li>
           </ul>
@@ -114,7 +167,7 @@
       </div>
 
       <!-- Qualities Section -->
-      <div class="digimon-section digital-panel" *ngIf="digimon.qualities && digimon.qualities.length > 0">
+      <div class="digimon-section digital-panel" *ngIf="character.qualities && character.qualities.length > 0">
         <h4 class="panel-header">Qualities</h4>
         <div class="panel-content">
           <ul class="digital-list">
@@ -126,10 +179,10 @@
       </div>
 
       <!-- Attacks Section -->
-      <div class="digimon-section digital-panel" *ngIf="digimon.attacks && digimon.attacks.length > 0">
+      <div class="digimon-section digital-panel" *ngIf="character.attacks && character.attacks.length > 0">
         <h4 class="panel-header">Attacks</h4>
         <div class="panel-content">
-          <div *ngFor="let attack of digimon.attacks" class="attack-summary">
+          <div *ngFor="let attack of character.attacks" class="attack-summary">
             <div class="attack-header">
               <span class="attack-name">{{ attack.name }}</span>
               <div class="attack-tags">
@@ -142,42 +195,45 @@
       </div>
 
       <!-- Description Section -->
-      <div class="digimon-section digital-panel" *ngIf="digimon.description">
+      <div class="digimon-section digital-panel" *ngIf="character.description">
         <h4 class="panel-header">Description</h4>
         <div class="panel-content">
-          <p class="description-text">{{ digimon.description }}</p>
+          <p class="description-text">{{ character.description }}</p>
         </div>
       </div>
     </div>
+  </ng-template>
 
-    <!-- Export Buttons with Digital Styling -->
-    <div class="export-buttons">
-      <button class="digital-button secondary-button" (click)="previewPdf()">
-        <i class="fas fa-eye"></i> Preview PDF
-      </button>
-      <button class="digital-button primary-button" (click)="downloadPdf()">
-        <i class="fas fa-download"></i> Download PDF
-      </button>
-    </div>
+  <!-- Export Buttons with Digital Styling -->
+  <div class="export-buttons">
+    <button class="digital-button secondary-button" (click)="previewPdf()">
+      <i class="fas fa-eye"></i> Preview PDF
+    </button>
+    <button class="digital-button primary-button" (click)="downloadPdf()">
+      <i class="fas fa-download"></i> Download PDF
+    </button>
+    <span class="export-note" *ngIf="isEvolutionLine">
+      * Currently exports individual character sheets
+    </span>
+  </div>
 
-    <!-- Action Buttons with Digital Styling -->
-    <div class="action-buttons">
-      <button class="digital-button secondary-button" (click)="goBack()">
-        Previous
-      </button>
-      <button class="digital-button warning-button" (click)="resetDigimon()">
-        Reset Digimon
-      </button>
-      <button class="digital-button primary-button" (click)="saveDigimon()">
-        Save Digimon
-      </button>
-      <button
-        class="digital-button success-button"
-        (click)="finish()"
-        [disabled]="validationErrors.length > 0"
-      >
-        Complete
-      </button>
-    </div>
+  <!-- Action Buttons with Digital Styling -->
+  <div class="action-buttons">
+    <button class="digital-button secondary-button" (click)="goBack()">
+      Previous
+    </button>
+    <button class="digital-button warning-button" (click)="resetDigimon()">
+      Reset {{ isEvolutionLine ? 'Evolution Line' : 'Digimon' }}
+    </button>
+    <button class="digital-button primary-button" (click)="saveDigimon()">
+      Save {{ isEvolutionLine ? 'Evolution Line' : 'Digimon' }}
+    </button>
+    <button
+      class="digital-button success-button"
+      (click)="finish()"
+      [disabled]="validationErrors.length > 0"
+    >
+      Complete
+    </button>
   </div>
 </div>

@@ -1,22 +1,37 @@
 <!-- src/app/features/digimon-character/digimon-character.component.html -->
 <div class="wizard-container">
+  
   <div class="wizard-header">
     <h1>Digimon Character Creator</h1>
     
     <div class="digimon-info" *ngIf="digimon">
-      <div class="digimon-name">
-        <span *ngIf="digimon.name">{{ digimon.name }}</span>
-        <span *ngIf="!digimon.name">Unnamed Digimon</span>
+    <div class="digimon-name">
+      <span *ngIf="digimon.name">{{ digimon.name }}</span>
+      <span *ngIf="!digimon.name">Unnamed Digimon</span>
+    </div>
+    
+    <div class="digimon-stage" *ngIf="digimon.stage">
+      {{ digimon.stage }} Stage
+    </div>
+    
+    <div class="digimon-species" *ngIf="digimon.species">
+      {{ digimon.species }}
+    </div>
+    
+    <!-- Evolution Line Progress -->
+    <div class="evolution-progress" *ngIf="characterContext.isEvolutionLine">
+      <div class="progress-text">
+        Evolution Line Progress
       </div>
-      
-      <div class="digimon-stage" *ngIf="digimon.stage">
-        {{ digimon.stage }} Stage
+      <div class="progress-bar">
+        <div class="progress-fill" 
+             [style.width.%]="characterContext.progress?.percentage || 0"></div>
       </div>
-      
-      <div class="digimon-species" *ngIf="digimon.species">
-        {{ digimon.species }}
+      <div class="progress-details">
+        {{ characterContext.progress?.completed || 0 }} / {{ characterContext.progress?.total || 0 }} Complete
       </div>
     </div>
+  </div>
     
     <div class="wizard-actions">
       <button class="action-button save-button" (click)="saveProgress()">
