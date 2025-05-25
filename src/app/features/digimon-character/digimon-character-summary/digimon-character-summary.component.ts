@@ -28,6 +28,8 @@ export class DigimonCharacterSummaryComponent implements OnInit {
   validationErrors: string[] = [];
   showSaveSuccess: boolean = false;
   isEvolutionLine: boolean = false;
+  isEvolutionLineComplete: boolean = false;
+  showCompleteButton: boolean = true;
   
   constructor(
     private digimonService: DigimonService,
@@ -48,6 +50,7 @@ export class DigimonCharacterSummaryComponent implements OnInit {
       this.isEvolutionLine = true;
       this.evolutionLineCharacters = this.evolutionLineManager.getAllCreatedCharacters();
       this.evolutionSummary = this.evolutionLineManager.getEvolutionSummary();
+      this.isEvolutionLineComplete = this.evolutionLineManager.isEvolutionLineComplete();
       this.currentViewingIndex = 0;
       
       // Validate all characters in the evolution line
@@ -70,8 +73,15 @@ export class DigimonCharacterSummaryComponent implements OnInit {
   validateEvolutionLine(): void {
     this.validationErrors = [];
     
-    if (!this.evolutionSummary?.isComplete) {
-      this.validationErrors.push('Evolution line is not complete. Please create all required characters.');
+    // Check if current character is valid
+    const currentDigimon = this.digimonService.getCurrentDigimon();
+    if (currentDigimon) {
+      const validation = this.digimonService.validateDigimon(currentDigimon);
+      if (!validation.valid) {
+        this.validationErrors.push(...validation.errors.map(error => 
+          `Current Character: ${error}`
+        ));
+      }
     }
 
     // Validate each character in the evolution line
@@ -89,9 +99,22 @@ export class DigimonCharacterSummaryComponent implements OnInit {
     if (this.isEvolutionLine) {
       // Save all characters in evolution line
       this.evolutionLineCharacters.forEach(character => {
-        // Save each character individually - in a real app, you'd want a bulk save
+        // Save each character individually
         localStorage.setItem(`digimon_${character.id}`, JSON.stringify(character));
       });
+      
+      // Also save the current character if not yet saved
+      const currentDigimon = this.digimonService.getCurrentDigimon();
+      if (currentDigimon && !this.isEvolutionLineComplete) {
+        const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+        if (evolutionLine) {
+          this.evolutionLineManager.saveCharacterForStage(
+            evolutionLine.currentEditingStage,
+            currentDigimon,
+            evolutionLine.currentEditingEvolutionId
+          );
+        }
+      }
     } else {
       this.digimonService.saveDigimon();
     }
@@ -122,6 +145,86 @@ export class DigimonCharacterSummaryComponent implements OnInit {
     this.wizardService.previousStep();
   }
   
+  /**
+   * Handle the complete/continue button action
+   */
+  completeOrContinue(): void {
+    if (this.validationErrors.length > 0) {
+      alert('Please fix all validation errors before proceeding.');
+      return;
+    }
+
+    if (this.isEvolutionLine && !this.isEvolutionLineComplete) {
+      // Continue to next character in evolution line
+      this.continueEvolutionLine();
+    } else {
+      // Complete the entire creation process
+      this.finish();
+    }
+  }
+
+  /**
+   * Continue to the next character in the evolution line
+   */
+  continueEvolutionLine(): void {
+    if (!this.isEvolutionLine) return;
+
+    // Save current character
+    this.saveCurrentCharacterToEvolutionLine();
+
+    // Get next character to create
+    const nextToCreate = this.evolutionLineManager.getNextToCreate();
+    
+    if (nextToCreate) {
+      // Show confirmation dialog
+      const nextCharacterName = this.getCharacterNameForStage(nextToCreate.stage, nextToCreate.evolutionId);
+      const confirmMessage = `Current character saved! Ready to create ${nextCharacterName} (${nextToCreate.stage})?`;
+      
+      if (confirm(confirmMessage)) {
+        // Proceed to next character
+        this.wizardService.completeCurrentCharacterAndProceedToNext();
+      }
+    } else {
+      // Evolution line is complete
+      this.isEvolutionLineComplete = true;
+      this.loadCharacterData(); // Refresh data
+      alert('Evolution line creation completed!');
+    }
+  }
+
+  /**
+   * Save the current character to the evolution line
+   */
+  private saveCurrentCharacterToEvolutionLine(): void {
+    const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+    const currentDigimon = this.digimonService.getCurrentDigimon();
+    
+    if (evolutionLine && currentDigimon) {
+      this.evolutionLineManager.saveCharacterForStage(
+        evolutionLine.currentEditingStage,
+        currentDigimon,
+        evolutionLine.currentEditingEvolutionId
+      );
+    }
+  }
+
+  /**
+   * Get the character name for a given stage and evolution ID
+   */
+  private getCharacterNameForStage(stage: DigimonStage, evolutionId?: string): string {
+    const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+    if (!evolutionLine) return 'Unknown';
+
+    if (stage === DigimonStage.Rookie) {
+      return evolutionLine.rookieName;
+    } else if (stage === DigimonStage.Champion && evolutionId) {
+      const champion = evolutionLine.championOptions.find(c => c.id === evolutionId);
+      return champion ? champion.name : 'Unknown Champion';
+    }
+
+    return 'Unknown';
+  }
+  
   finish(): void {
     if (this.validationErrors.length > 0) {
       alert('Please fix all validation errors before completing the Digimon creation.');
@@ -131,10 +234,45 @@ export class DigimonCharacterSummaryComponent implements OnInit {
     this.saveDigimon();
     
     const successMessage = this.isEvolutionLine
-      ? `Evolution line creation completed successfully! Created ${this.evolutionLineCharacters.length} character sheets.`
+      ? `Evolution line creation completed successfully! Created ${this.evolutionLineCharacters.length + (this.isEvolutionLineComplete ? 0 : 1)} character sheets.`
       : 'Digimon creation completed successfully!';
       
     alert(successMessage);
+  }
+
+  /**
+   * Get the text for the complete/continue button
+   */
+  getCompleteButtonText(): string {
+    if (this.isEvolutionLine && !this.isEvolutionLineComplete) {
+      const nextToCreate = this.evolutionLineManager.getNextToCreate();
+      if (nextToCreate) {
+        const nextCharacterName = this.getCharacterNameForStage(nextToCreate.stage, nextToCreate.evolutionId);
+        return `Save & Create ${nextCharacterName}`;
+      }
+      return 'Continue Evolution Line';
+    }
+    return 'Complete';
+  }
+
+  /**
+   * Get the current character being created (for evolution lines)
+   */
+  getCurrentCharacterInfo(): { stage: DigimonStage; name: string } | null {
+    if (!this.isEvolutionLine) return null;
+
+    const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+    if (!evolutionLine) return null;
+
+    const characterName = this.getCharacterNameForStage(
+      evolutionLine.currentEditingStage,
+      evolutionLine.currentEditingEvolutionId
+    );
+
+    return {
+      stage: evolutionLine.currentEditingStage,
+      name: characterName
+    };
   }
 
   /**
@@ -168,6 +306,12 @@ export class DigimonCharacterSummaryComponent implements OnInit {
     const currentCharacter = this.getCurrentViewingCharacter();
     if (currentCharacter) {
       this.pdfGeneratorService.previewDigimonCharacterPdf(currentCharacter);
+    } else {
+      // Preview the current character being created
+      const currentDigimon = this.digimonService.getCurrentDigimon();
+      if (currentDigimon) {
+        this.pdfGeneratorService.previewDigimonCharacterPdf(currentDigimon);
+      }
     }
   }
 
@@ -180,6 +324,12 @@ export class DigimonCharacterSummaryComponent implements OnInit {
     const currentCharacter = this.getCurrentViewingCharacter();
     if (currentCharacter) {
       this.pdfGeneratorService.generateDigimonCharacterPdf(currentCharacter);
+    } else {
+      // Download the current character being created
+      const currentDigimon = this.digimonService.getCurrentDigimon();
+      if (currentDigimon) {
+        this.pdfGeneratorService.generateDigimonCharacterPdf(currentDigimon);
+      }
     }
   }
 

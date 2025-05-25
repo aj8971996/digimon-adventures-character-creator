@@ -15,28 +15,41 @@
       </div>
     </div>
     
-    <div class="evolution-chain-nav">
-      <div *ngFor="let character of evolutionLineCharacters; let i = index" 
-           class="character-nav-item"
-           [class.active]="i === currentViewingIndex"
-           (click)="goToCharacter(i)">
-        <div class="nav-character-image" *ngIf="character.profileImage">
-          <img [src]="character.profileImage" [alt]="character.name || character.species">
-        </div>
-        <div class="nav-character-info">
-          <div class="nav-character-name">{{ character.name || character.species }}</div>
-          <div class="nav-character-stage">{{ character.stage }}</div>
+    <!-- Current Character Being Created (if not complete) -->
+    <div class="current-character-info" *ngIf="!isEvolutionLineComplete && getCurrentCharacterInfo()">
+      <div class="current-character-card">
+        <div class="current-label">Currently Creating:</div>
+        <div class="current-name">{{ getCurrentCharacterInfo()?.name }}</div>
+        <div class="current-stage">{{ getCurrentCharacterInfo()?.stage }}</div>
+      </div>
+    </div>
+    
+    <!-- Completed Characters Navigation -->
+    <div class="evolution-chain-nav" *ngIf="evolutionLineCharacters.length > 0">
+      <div class="nav-header">Completed Characters:</div>
+      <div class="character-nav-items">
+        <div *ngFor="let character of evolutionLineCharacters; let i = index" 
+             class="character-nav-item"
+             [class.active]="i === currentViewingIndex"
+             (click)="goToCharacter(i)">
+          <div class="nav-character-image" *ngIf="character.profileImage">
+            <img [src]="character.profileImage" [alt]="character.name || character.species">
+          </div>
+          <div class="nav-character-info">
+            <div class="nav-character-name">{{ character.name || character.species }}</div>
+            <div class="nav-character-stage">{{ character.stage }}</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Character Navigation Controls -->
+    <!-- Character Navigation Controls for completed characters -->
     <div class="character-navigation" *ngIf="evolutionLineCharacters.length > 1">
       <button class="nav-btn" (click)="previousCharacter()" [disabled]="currentViewingIndex === 0">
         ← Previous
       </button>
       <span class="nav-info">
-        Viewing {{ currentViewingIndex + 1 }} of {{ evolutionLineCharacters.length }}
+        Viewing {{ currentViewingIndex + 1 }} of {{ evolutionLineCharacters.length }} completed
       </span>
       <button class="nav-btn" (click)="nextCharacter()" [disabled]="currentViewingIndex === evolutionLineCharacters.length - 1">
         Next →
@@ -52,16 +65,16 @@
   </div>
 
   <div class="save-success" *ngIf="showSaveSuccess">
-    <p>{{ isEvolutionLine ? 'Evolution line' : 'Digimon' }} saved successfully!</p>
+    <p>{{ isEvolutionLine ? 'Evolution line progress' : 'Digimon' }} saved successfully!</p>
   </div>
 
   <!-- Current Character Display -->
   <div class="digimon-sheet digital-display-panel" 
-       *ngIf="(isEvolutionLine && getCurrentViewingCharacter()) || (!isEvolutionLine && digimon)">
+       *ngIf="(isEvolutionLine && (getCurrentViewingCharacter() || digimon)) || (!isEvolutionLine && digimon)">
     
     <!-- Use current viewing character for evolution line, or single digimon -->
     <ng-container *ngTemplateOutlet="characterSheet; context: { 
-      $implicit: isEvolutionLine ? getCurrentViewingCharacter() : digimon 
+      $implicit: isEvolutionLine ? (getCurrentViewingCharacter() || digimon) : digimon 
     }"></ng-container>
   </div>
 
@@ -226,14 +239,14 @@
       Reset {{ isEvolutionLine ? 'Evolution Line' : 'Digimon' }}
     </button>
     <button class="digital-button primary-button" (click)="saveDigimon()">
-      Save {{ isEvolutionLine ? 'Evolution Line' : 'Digimon' }}
+      Save {{ isEvolutionLine ? 'Progress' : 'Digimon' }}
     </button>
     <button
       class="digital-button success-button"
-      (click)="finish()"
+      (click)="completeOrContinue()"
       [disabled]="validationErrors.length > 0"
     >
-      Complete
+      {{ getCompleteButtonText() }}
     </button>
   </div>
 </div>

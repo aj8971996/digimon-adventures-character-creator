@@ -5,40 +5,44 @@
     <h1>Digimon Character Creator</h1>
     
     <div class="digimon-info" *ngIf="digimon">
-    <div class="digimon-name">
-      <span *ngIf="digimon.name">{{ digimon.name }}</span>
-      <span *ngIf="!digimon.name">Unnamed Digimon</span>
-    </div>
-    
-    <div class="digimon-stage" *ngIf="digimon.stage">
-      {{ digimon.stage }} Stage
-    </div>
-    
-    <div class="digimon-species" *ngIf="digimon.species">
-      {{ digimon.species }}
-    </div>
-    
-    <!-- Evolution Line Progress -->
-    <div class="evolution-progress" *ngIf="characterContext.isEvolutionLine">
-      <div class="progress-text">
-        Evolution Line Progress
+      <div class="digimon-name">
+        <span *ngIf="digimon.name">{{ digimon.name }}</span>
+        <span *ngIf="!digimon.name">{{ getCurrentCreationText() }}</span>
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" 
-             [style.width.%]="characterContext.progress?.percentage || 0"></div>
+      
+      <div class="digimon-stage" *ngIf="digimon.stage">
+        {{ digimon.stage }} Stage
       </div>
-      <div class="progress-details">
-        {{ characterContext.progress?.completed || 0 }} / {{ characterContext.progress?.total || 0 }} Complete
+      
+      <div class="digimon-species" *ngIf="digimon.species">
+        {{ digimon.species }}
+      </div>
+      
+      <!-- Evolution Line Progress -->
+      <div class="evolution-progress" *ngIf="characterContext.isEvolutionLine">
+        <div class="progress-text">
+          <span *ngIf="!characterContext.isComplete">Creating {{ characterContext.currentCharacterName }}</span>
+          <span *ngIf="characterContext.isComplete">Evolution Line Complete!</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" 
+               [style.width.%]="characterContext.progress?.percentage || 0"></div>
+        </div>
+        <div class="progress-details">
+          {{ characterContext.progress?.completed || 0 }} / {{ characterContext.progress?.total || 0 }} Complete
+        </div>
+        <div class="evolution-line-name" *ngIf="characterContext.rookieName">
+          {{ characterContext.rookieName }} Evolution Line
+        </div>
       </div>
     </div>
-  </div>
     
     <div class="wizard-actions">
       <button class="action-button save-button" (click)="saveProgress()">
         Save Progress
       </button>
       <button class="action-button reset-button" (click)="resetWizard()">
-        Reset Wizard
+        Reset {{ characterContext.isEvolutionLine ? 'Evolution Line' : 'Wizard' }}
       </button>
     </div>
   </div>
@@ -76,6 +80,9 @@
   <div class="wizard-footer">
     <div class="progress-text">
       Step {{ currentStep + 1 }} of {{ wizardSteps.length }}
+      <span *ngIf="characterContext.isEvolutionLine && !characterContext.isComplete" class="evolution-indicator">
+        • Creating {{ characterContext.currentCharacterName }}
+      </span>
     </div>
     
     <div class="wizard-navigation">

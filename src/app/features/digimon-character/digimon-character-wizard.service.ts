@@ -87,7 +87,7 @@ export class DigimonCharacterWizardService {
       
       if (evolutionLine && !this.evolutionLineManager.isEvolutionLineComplete()) {
         // Save current character and move to next in evolution line
-        this.saveCurrentCharacterAndProceedToNext();
+        this.completeCurrentCharacterAndProceedToNext();
         return;
       }
     }
@@ -123,13 +123,13 @@ export class DigimonCharacterWizardService {
   }
 
   /**
-   * Save current character and proceed to next in evolution line
+   * Complete current character and proceed to next in evolution line
    */
-  private saveCurrentCharacterAndProceedToNext(): void {
+  completeCurrentCharacterAndProceedToNext(): void {
     const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
     if (!evolutionLine) return;
 
-    // Save current character
+    // Save current character to evolution line
     const currentCharacter = this.digimonService.getCurrentDigimon();
     this.evolutionLineManager.saveCharacterForStage(
       evolutionLine.currentEditingStage,
@@ -144,28 +144,114 @@ export class DigimonCharacterWizardService {
       // Set up for next character creation
       this.evolutionLineManager.setCurrentEditing(nextToCreate.stage, nextToCreate.evolutionId);
       
-      // Reset Digimon service for new character
-      this.digimonService.setStage(nextToCreate.stage);
+      // Initialize new Digimon for the next stage
+      this.initializeDigimonForStage(nextToCreate.stage, nextToCreate.evolutionId);
       
-      // Set appropriate sprite and species based on stage and evolution
-      if (nextToCreate.stage === DigimonStage.Champion && nextToCreate.evolutionId) {
-        const championName = this.evolutionLineManager.getChampionNameById(nextToCreate.evolutionId);
-        const championOption = evolutionLine.championOptions.find(c => c.id === nextToCreate.evolutionId);
-        
-        if (championOption?.sprite) {
-          this.digimonService.updateDigimon({
-            species: championName,
-            profileImage: `assets/images/digimon-sprites/champions/${championOption.sprite}`
-          });
-        }
-      }
-      
-      // Go back to basic info for the new character
+      // Go to basic info for the new character
       this.goToStep(WizardStep.BasicInfo);
     } else {
-      // Evolution line is complete, proceed to summary
-      this.goToStep(WizardStep.CharacterSummary);
+      // Evolution line is complete, stay on summary
+      // The summary component will handle showing all characters
+      console.log('Evolution line complete!');
     }
+  }
+
+  /**
+   * Initialize a new Digimon for a specific stage and evolution
+   */
+  private initializeDigimonForStage(stage: DigimonStage, evolutionId?: string): void {
+    const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+    if (!evolutionLine) return;
+
+    // Reset Digimon service for new character
+    this.digimonService.setStage(stage);
+    
+    // Set appropriate sprite and species based on stage and evolution
+    if (stage === DigimonStage.Rookie) {
+      // For Rookie, use rookie sprite and name
+      const rookieSprite = evolutionLine.rookieSprite 
+        ? `assets/images/digimon-sprites/rookies/${evolutionLine.rookieSprite}`
+        : '';
+      
+      this.digimonService.updateDigimon({
+        species: evolutionLine.rookieName,
+        profileImage: rookieSprite,
+        name: '' // Clear name so user can set individual name
+      });
+    } else if (stage === DigimonStage.Champion && evolutionId) {
+      // For Champion, use champion sprite and name
+      const championOption = evolutionLine.championOptions.find(c => c.id === evolutionId);
+      
+      if (championOption) {
+        const championSprite = championOption.sprite 
+          ? `assets/images/digimon-sprites/champions/${championOption.sprite}`
+          : '';
+        
+        this.digimonService.updateDigimon({
+          species: championOption.name,
+          profileImage: championSprite,
+          name: '' // Clear name so user can set individual name
+        });
+      }
+    }
+  }
+
+  /**
+   * Start a new character in an existing evolution line
+   */
+  startNextCharacterInLine(): void {
+    const nextToCreate = this.evolutionLineManager.getNextToCreate();
+    
+    if (nextToCreate) {
+      this.evolutionLineManager.setCurrentEditing(nextToCreate.stage, nextToCreate.evolutionId);
+      this.initializeDigimonForStage(nextToCreate.stage, nextToCreate.evolutionId);
+      this.goToStep(WizardStep.BasicInfo);
+    }
+  }
+
+  /**
+   * Check if we're currently in an evolution line creation process
+   */
+  isInEvolutionLine(): boolean {
+    return this.evolutionLineManager.getCurrentEvolutionLine() !== null;
+  }
+
+  /**
+   * Get information about the current character being created in evolution line
+   */
+  getCurrentEvolutionContext(): {
+    stage?: DigimonStage;
+    evolutionId?: string;
+    characterName?: string;
+    isComplete: boolean;
+    progress: { completed: number; total: number; percentage: number };
+  } {
+    const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+    
+    if (!evolutionLine) {
+      return {
+        isComplete: false,
+        progress: { completed: 0, total: 0, percentage: 0 }
+      };
+    }
+
+    const progress = this.evolutionLineManager.getCreationProgress();
+    let characterName = '';
+
+    if (evolutionLine.currentEditingStage === DigimonStage.Rookie) {
+      characterName = evolutionLine.rookieName;
+    } else if (evolutionLine.currentEditingStage === DigimonStage.Champion && evolutionLine.currentEditingEvolutionId) {
+      const champion = evolutionLine.championOptions.find(c => c.id === evolutionLine.currentEditingEvolutionId);
+      characterName = champion ? champion.name : '';
+    }
+
+    return {
+      stage: evolutionLine.currentEditingStage,
+      evolutionId: evolutionLine.currentEditingEvolutionId,
+      characterName,
+      isComplete: this.evolutionLineManager.isEvolutionLineComplete(),
+      progress
+    };
   }
 
   /**

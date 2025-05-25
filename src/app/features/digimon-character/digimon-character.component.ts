@@ -5,6 +5,7 @@ import { RouterModule, Router, ActivatedRoute, NavigationEnd } from '@angular/ro
 import { Subscription, filter } from 'rxjs';
 import { DigimonCharacterWizardService, WizardStep } from './digimon-character-wizard.service';
 import { DigimonService } from '../../core/services/digimon.service';
+import { EvolutionLineManagerService } from '../../core/services/evolution-line-manager.service';
 import { DigimonCharacter } from '../../core/models/digimon-character';
 
 @Component({
@@ -33,6 +34,7 @@ export class DigimonCharacterComponent implements OnInit, OnDestroy {
   constructor(
     private wizardService: DigimonCharacterWizardService,
     private digimonService: DigimonService,
+    private evolutionLineManager: EvolutionLineManagerService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -49,6 +51,13 @@ export class DigimonCharacterComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.digimonService.digimon$.subscribe(digimon => {
         this.digimon = digimon;
+      })
+    );
+
+    // Subscribe to evolution line changes
+    this.subscription.add(
+      this.evolutionLineManager.evolutionLine$.subscribe(evolutionLine => {
+        this.updateCharacterContext();
       })
     );
     
@@ -70,7 +79,10 @@ export class DigimonCharacterComponent implements OnInit, OnDestroy {
     
     // Load saved digimon and evolution line if exists
     const hasSavedDigimon = this.digimonService.loadDigimon();
-    const hasSavedEvolutionLine = this.digimonService.loadEvolutionLineSelection();
+    const hasSavedEvolutionLine = this.evolutionLineManager.loadFromStorage();
+    
+    // Update character context
+    this.updateCharacterContext();
     
     // Start the wizard
     this.wizardService.startWizard();
@@ -78,6 +90,45 @@ export class DigimonCharacterComponent implements OnInit, OnDestroy {
   
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+  }
+
+  /**
+   * Update the character context based on current evolution line state
+   */
+  private updateCharacterContext(): void {
+    const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+    
+    if (evolutionLine) {
+      const progress = this.evolutionLineManager.getCreationProgress();
+      const currentCharacterName = this.getCurrentCharacterName(evolutionLine);
+      
+      this.characterContext = {
+        isEvolutionLine: true,
+        currentStage: evolutionLine.currentEditingStage,
+        currentEvolutionId: evolutionLine.currentEditingEvolutionId,
+        currentCharacterName: currentCharacterName,
+        progress: progress,
+        rookieName: evolutionLine.rookieName,
+        isComplete: this.evolutionLineManager.isEvolutionLineComplete()
+      };
+    } else {
+      this.characterContext = {
+        isEvolutionLine: false
+      };
+    }
+  }
+
+  /**
+   * Get the name of the current character being created
+   */
+  private getCurrentCharacterName(evolutionLine: any): string {
+    if (evolutionLine.currentEditingStage === 'Rookie') {
+      return evolutionLine.rookieName;
+    } else if (evolutionLine.currentEditingStage === 'Champion' && evolutionLine.currentEditingEvolutionId) {
+      const champion = evolutionLine.championOptions.find((c: any) => c.id === evolutionLine.currentEditingEvolutionId);
+      return champion ? champion.name : 'Unknown Champion';
+    }
+    return 'Unknown';
   }
   
   // Navigate directly to a step (if allowed)
@@ -121,8 +172,13 @@ export class DigimonCharacterComponent implements OnInit, OnDestroy {
   
   // Reset the wizard and start over
   resetWizard(): void {
-    if (confirm('Are you sure you want to reset your Digimon creation progress? All unsaved changes will be lost.')) {
+    const confirmMessage = this.characterContext.isEvolutionLine 
+      ? 'Are you sure you want to reset your evolution line creation progress? All unsaved changes will be lost.'
+      : 'Are you sure you want to reset your Digimon creation progress? All unsaved changes will be lost.';
+      
+    if (confirm(confirmMessage)) {
       this.digimonService.resetDigimon();
+      this.evolutionLineManager.resetEvolutionLine();
       this.wizardService.resetWizard();
     }
   }
@@ -130,6 +186,39 @@ export class DigimonCharacterComponent implements OnInit, OnDestroy {
   // Save current progress
   saveProgress(): void {
     this.digimonService.saveDigimon();
-    alert('Digimon saved successfully!');
+    
+    // Also save evolution line progress if applicable
+    if (this.characterContext.isEvolutionLine) {
+      const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+      if (evolutionLine) {
+        // Save current character to evolution line
+        const currentDigimon = this.digimonService.getCurrentDigimon();
+        this.evolutionLineManager.saveCharacterForStage(
+          evolutionLine.currentEditingStage,
+          currentDigimon,
+          evolutionLine.currentEditingEvolutionId
+        );
+      }
+    }
+    
+    alert('Progress saved successfully!');
+  }
+
+  /**
+   * Get the display text for what's currently being created
+   */
+  getCurrentCreationText(): string {
+    if (!this.characterContext.isEvolutionLine) {
+      return 'Single Digimon';
+    }
+
+    if (this.characterContext.isComplete) {
+      return 'Evolution Line Complete';
+    }
+
+    const characterName = this.characterContext.currentCharacterName || 'Unknown';
+    const stage = this.characterContext.currentStage || 'Unknown';
+    
+    return `${characterName} (${stage})`;
   }
 }
