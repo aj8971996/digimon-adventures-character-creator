@@ -206,11 +206,11 @@ export const DIGIMON_EVOLUTION_LINES: DigimonEvolutionLine[] = [
     championOptions: [
       // Note: Gatomon not available in current sprite list
       { id: '31', name: 'Meicoomon', isPrimary: true, sprite: '31Meicoomon.png' },
+      { id: '84', name: 'Meicoomon (Saltation)', sprite: '84MeicoomonSaltation.png' },
+      { id: '85', name: 'Gatomon', sprite: '85Gatomon.png' },
       { id: '69', name: 'Wizardmon', sprite: '69Wizardmon.png' },
       { id: '71', name: 'Bakemon', sprite: '71Bakemon.png' },
-      { id: '79', name: 'Deputymon', sprite: '79Deputymon.png' },
-      { id: '81', name: 'Clockmon', sprite: '81Clockmon.png' },
-      { id: '37', name: 'Unimon', sprite: '37Unimon.png' },
+      { id: '86', name: 'Black Gatomon', sprite: '86BlackGatomon.png' },
       { id: '70', name: 'Devimon', sprite: '70Devimon.png' }
     ]
   },
