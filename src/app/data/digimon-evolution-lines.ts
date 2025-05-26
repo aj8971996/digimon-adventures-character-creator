@@ -111,7 +111,7 @@ export const DIGIMON_EVOLUTION_LINES: DigimonEvolutionLine[] = [
       { id: '77', name: 'Redvegiemon', sprite: '77Redvegiemon.png' },
       { id: '40', name: 'Shellmon', sprite: '40Shellmon.png' },
       { id: '75', name: 'Kiwimon', sprite: '75Kiwimon.png' },
-      { id: '69', name: 'Wizardmon', sprite: '69Wizardmon.png' }
+      { id: '88', name: 'Sunflowmon', sprite: '88Sunflowmon.png' }
     ]
   },
   {
@@ -219,13 +219,12 @@ export const DIGIMON_EVOLUTION_LINES: DigimonEvolutionLine[] = [
     rookieName: 'Floramon',
     rookieSprite: '15Floramon.png',
     championOptions: [
-      { id: '76', name: 'Woodmon', isPrimary: true, sprite: '76Woodmon.png' },
+      { id: '76', name: 'Woodmon', sprite: '76Woodmon.png' },
       { id: '36', name: 'Vegimon', isPrimary: true, sprite: '36Vegimon.png' },
       { id: '77', name: 'Redvegiemon', sprite: '77Redvegiemon.png' },
       { id: '74', name: 'Togemon', sprite: '74Togemon.png' },
-      { id: '75', name: 'Kiwimon', sprite: '75Kiwimon.png' },
-      { id: '40', name: 'Shellmon', sprite: '40Shellmon.png' },
-      { id: '69', name: 'Wizardmon', sprite: '69Wizardmon.png' }
+      { id: '75', name: 'Kiwimon', isPrimary: true, sprite: '75Kiwimon.png' },
+      { id: '88', name: 'Sunflowmon', sprite: '88Sunflowmon.png' }
     ]
   },
   {
@@ -252,8 +251,7 @@ export const DIGIMON_EVOLUTION_LINES: DigimonEvolutionLine[] = [
       { id: '63', name: 'Coelamon', sprite: '63Coelamon.png' },
       { id: '64', name: 'Gesomon', sprite: '64Gesomon.png' },
       { id: '65', name: 'Octomon', sprite: '65Octomon.png' },
-      { id: '61', name: 'Rukamon', sprite: '61Rukamon.png' },
-      { id: '52', name: 'Deltamon', sprite: '52Deltamon.png' }
+      { id: '61', name: 'Rukamon', sprite: '61Rukamon.png' }
     ]
   },
   {
