@@ -337,27 +337,111 @@ export class DigimonPdfGeneratorService {
       // Get the evolution line data to build the complete preview
       imageHtml = this.createEvolutionLinePreview(digimon, evolutionLine);
     } else if (digimon.profileImage) {
-      // Single Digimon - show just their image
+      // Single Digimon - show just their image with enhanced styling
       imageHtml = `
         <div style="flex: 1; text-align: center;">
-          <img src="${digimon.profileImage}" alt="Digimon Sprite" style="max-width: 100px; max-height: 100px; border: 2px solid #FE5000; border-radius: 8px;"/>
+          <div style="background: linear-gradient(135deg, #FFF8F0 0%, #FFE5D9 100%); 
+                      border: 3px solid #FE5000; border-radius: 12px; padding: 15px; 
+                      box-shadow: 0 4px 8px rgba(254, 80, 0, 0.15);">
+            <img src="${digimon.profileImage}" alt="Digimon Sprite" 
+                 style="max-width: 120px; max-height: 120px; border-radius: 8px; 
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+          </div>
         </div>
       `;
     }
     
     return `
-      <div style="font-family: Arial, sans-serif; color: #333; width: 100%;">
-        <div style="display: flex; margin-bottom: 15px; align-items: flex-start;">
-          <div style="flex: 2;">
-            <p style="margin: 5px 0;"><strong>Species:</strong> ${digimon.species || 'Not set'}</p>
-            <p style="margin: 5px 0;"><strong>Stage:</strong> ${digimon.stage}</p>
-            <p style="margin: 5px 0;"><strong>Attribute:</strong> ${digimon.attribute}</p>
-            <p style="margin: 5px 0;"><strong>Field:</strong> ${digimon.field}</p>
-            <p style="margin: 5px 0;"><strong>Size:</strong> ${digimon.size}</p>
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; width: 100%;">
+        <div style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-start;">
+          <!-- Main Info Panel -->
+          <div style="flex: 2; background: linear-gradient(135deg, #FFFFFF 0%, #FFF8F0 100%); 
+                      border: 2px solid #FE5000; border-radius: 12px; padding: 20px;
+                      box-shadow: 0 4px 12px rgba(254, 80, 0, 0.1);">
+            
+            <!-- Character Name Header -->
+            ${digimon.name ? `
+              <div style="background: linear-gradient(90deg, #FE5000 0%, #FF7A3D 100%); 
+                          color: white; padding: 12px 16px; margin: -20px -20px 15px -20px; 
+                          border-radius: 10px 10px 0 0; text-align: center;
+                          box-shadow: 0 2px 4px rgba(254, 80, 0, 0.3);">
+                <h3 style="margin: 0; font-size: 18px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                  ${digimon.name}
+                </h3>
+              </div>
+            ` : ''}
+            
+            <!-- Info Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+              <div style="background: #FFF; border: 1px solid #FFB68A; border-radius: 8px; padding: 12px;
+                          box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="font-size: 11px; color: #FE5000; font-weight: bold; text-transform: uppercase; 
+                           letter-spacing: 0.5px; margin-bottom: 4px;">Species</div>
+                <div style="font-size: 14px; font-weight: 600; color: #2C3E50;">
+                  ${digimon.species || 'Not set'}
+                </div>
+              </div>
+              
+              <div style="background: #FFF; border: 1px solid #FFB68A; border-radius: 8px; padding: 12px;
+                          box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="font-size: 11px; color: #FE5000; font-weight: bold; text-transform: uppercase; 
+                           letter-spacing: 0.5px; margin-bottom: 4px;">Stage</div>
+                <div style="font-size: 14px; font-weight: 600; color: #2C3E50;">
+                  ${digimon.stage}
+                </div>
+              </div>
+              
+              <div style="background: #FFF; border: 1px solid #FFB68A; border-radius: 8px; padding: 12px;
+                          box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="font-size: 11px; color: #FE5000; font-weight: bold; text-transform: uppercase; 
+                           letter-spacing: 0.5px; margin-bottom: 4px;">Attribute</div>
+                <div style="font-size: 14px; font-weight: 600; color: #2C3E50;">
+                  ${digimon.attribute}
+                </div>
+              </div>
+              
+              <div style="background: #FFF; border: 1px solid #FFB68A; border-radius: 8px; padding: 12px;
+                          box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="font-size: 11px; color: #FE5000; font-weight: bold; text-transform: uppercase; 
+                           letter-spacing: 0.5px; margin-bottom: 4px;">Field</div>
+                <div style="font-size: 14px; font-weight: 600; color: #2C3E50;">
+                  ${digimon.field}
+                </div>
+              </div>
+              
+              <div style="background: #FFF; border: 1px solid #FFB68A; border-radius: 8px; padding: 12px;
+                          box-shadow: 0 1px 3px rgba(0,0,0,0.05); grid-column: span 2;">
+                <div style="font-size: 11px; color: #FE5000; font-weight: bold; text-transform: uppercase; 
+                           letter-spacing: 0.5px; margin-bottom: 4px;">Size</div>
+                <div style="font-size: 14px; font-weight: 600; color: #2C3E50;">
+                  ${digimon.size}
+                </div>
+              </div>
+            </div>
           </div>
+          
+          <!-- Image/Evolution Panel -->
           ${imageHtml}
         </div>
-        ${digimon.description ? `<p style="margin: 10px 0;"><strong>Description:</strong> ${digimon.description}</p>` : ''}
+        
+        <!-- Description Section -->
+        ${digimon.description ? `
+          <div style="background: linear-gradient(135deg, #FFFFFF 0%, #FFF8F0 100%); 
+                      border: 2px solid #FE5000; border-radius: 12px; padding: 20px;
+                      box-shadow: 0 4px 12px rgba(254, 80, 0, 0.1); margin-top: 15px;">
+            <div style="background: linear-gradient(90deg, #FE5000 0%, #FF7A3D 100%); 
+                        color: white; padding: 8px 12px; margin: -20px -20px 15px -20px; 
+                        border-radius: 10px 10px 0 0;
+                        box-shadow: 0 2px 4px rgba(254, 80, 0, 0.3);">
+              <h4 style="margin: 0; font-size: 14px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                Character Description
+              </h4>
+            </div>
+            <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #2C3E50; text-align: justify;">
+              ${digimon.description}
+            </p>
+          </div>
+        ` : ''}
       </div>
     `;
   }
@@ -774,7 +858,7 @@ export class DigimonPdfGeneratorService {
     return `
       <div style="font-family: Arial, sans-serif; color: #333; width: 100%; height: 100%;">
         <div style="margin-bottom: 20px;">
-        
+
 \          <p style="margin-bottom: 20px; font-size: 14px; color: #666;">
             Track your character's journey through each gaming session, important events, and character development.
           </p>
