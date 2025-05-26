@@ -32,7 +32,7 @@ export class DigimonPdfGeneratorService {
   }
   
   /**
-   * Generate a multi-page PDF for Digimon character sheet
+   * Generate a multi-page PDF for Digimon character sheet - UPDATED FOR 7 PAGES
    */
   private async generateMultiPagePdf(digimon: DigimonCharacter, action: 'download' | 'preview'): Promise<void> {
     // Create PDF document
@@ -48,7 +48,7 @@ export class DigimonPdfGeneratorService {
     pdf.setFont('helvetica');
     
     let currentPage = 1;
-    const totalPages = 6; // Updated to 6 pages (separated DP spending and evolution tracking)
+    const totalPages = 7; // Updated to 7 pages
     let yPosition = margin + headerHeight;
     
     // Add header to the first page
@@ -159,13 +159,13 @@ export class DigimonPdfGeneratorService {
     
     this.addDigimonPageFooter(pdf, currentPage, totalPages);
     
-    // --- PAGE 5: DP Spending Log (Dedicated Page) ---
+    // --- PAGE 5: DP Spending Log (Simplified) ---
     pdf.addPage();
     currentPage++;
     yPosition = margin + headerHeight;
     this.addDigimonPageHeader(pdf, digimon, currentPage, totalPages);
     
-    // DP Spending Log Section - Full page
+    // DP Spending Log Section - Simplified
     const dpSpendingSection = {
       title: "DP Spending & Upgrade Log",
       content: this.createDPSpendingLogHtml(),
@@ -176,20 +176,37 @@ export class DigimonPdfGeneratorService {
     
     this.addDigimonPageFooter(pdf, currentPage, totalPages);
     
-    // --- PAGE 6: Evolution Tracking & Campaign Notes (NEW PAGE) ---
+    // --- PAGE 6: Evolution & Campaign Notes (Simplified) ---
     pdf.addPage();
     currentPage++;
     yPosition = margin + headerHeight;
     this.addDigimonPageHeader(pdf, digimon, currentPage, totalPages);
     
-    // Evolution Tracking Section - Full page
-    const evolutionTrackingSection = {
-      title: "Evolution Line & Campaign Notes",
-      content: this.createEvolutionTrackingHtml(digimon),
+    // Evolution & Campaign Notes Section - Simplified
+    const evolutionCampaignSection = {
+      title: "Evolution",
+      content: this.createEvolutionCampaignNotesHtml(digimon),
       extraSpace: 0
     };
     
-    await this.renderSection(pdf, evolutionTrackingSection, margin, yPosition, contentWidth, pageWidth);
+    await this.renderSection(pdf, evolutionCampaignSection, margin, yPosition, contentWidth, pageWidth);
+    
+    this.addDigimonPageFooter(pdf, currentPage, totalPages);
+    
+    // --- PAGE 7: Session Log (New Page) ---
+    pdf.addPage();
+    currentPage++;
+    yPosition = margin + headerHeight;
+    this.addDigimonPageHeader(pdf, digimon, currentPage, totalPages);
+    
+    // Session Log Section - New dedicated page
+    const sessionLogSection = {
+      title: "Session Log",
+      content: this.createSessionLogHtml(),
+      extraSpace: 0
+    };
+    
+    await this.renderSection(pdf, sessionLogSection, margin, yPosition, contentWidth, pageWidth);
     
     this.addDigimonPageFooter(pdf, currentPage, totalPages);
     
@@ -634,67 +651,49 @@ export class DigimonPdfGeneratorService {
   }
   
   /**
-   * Create a dedicated DP spending log page - SEPARATED into its own page
+   * Create a dedicated DP spending log page - SIMPLIFIED (Page 5)
    */
   private createDPSpendingLogHtml(): string {
     return `
       <div style="font-family: Arial, sans-serif; color: #333; width: 100%; height: 100%;">
         <div style="margin-bottom: 30px;">
-          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 18px;">DP Spending & Upgrade Log</h4>
-          <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+          
+          <p style="margin-bottom: 20px; font-size: 14px; color: #666;">
             Use this section to track how you spend DP during gameplay and character advancement.
           </p>
           
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
             <tr style="background-color: #FFE5D9;">
-              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 50%; font-size: 14px;">Upgrade/Purchase Description</th>
-              <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 15%; font-size: 14px;">DP Cost</th>
-              <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 15%; font-size: 14px;">Session</th>
-              <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 20%; font-size: 14px;">Date/Notes</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 45%; font-size: 14px;">Upgrade/Purchase Description</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 12%; font-size: 14px;">DP Cost</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 12%; font-size: 14px;">Session</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 15%; font-size: 14px;">Date</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 16%; font-size: 14px;">Notes</th>
             </tr>
             ${Array(15).fill(0).map(() => `
               <tr>
-                <td style="padding: 20px 12px; border: 1px solid #ddd; height: 40px;"></td>
-                <td style="padding: 20px 12px; border: 1px solid #ddd; text-align: center; height: 40px;"></td>
-                <td style="padding: 20px 12px; border: 1px solid #ddd; text-align: center; height: 40px;"></td>
-                <td style="padding: 20px 12px; border: 1px solid #ddd; text-align: center; height: 40px;"></td>
+                <td style="padding: 15px 12px; border: 1px solid #ddd; height: 35px;"></td>
+                <td style="padding: 15px 12px; border: 1px solid #ddd; text-align: center; height: 35px;"></td>
+                <td style="padding: 15px 12px; border: 1px solid #ddd; text-align: center; height: 35px;"></td>
+                <td style="padding: 15px 12px; border: 1px solid #ddd; text-align: center; height: 35px;"></td>
+                <td style="padding: 15px 12px; border: 1px solid #ddd; height: 35px;"></td>
               </tr>
             `).join('')}
           </table>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 16px;">DP Summary & Quick Reference</h4>
-          <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-            <div style="flex: 1; border: 2px solid #FE5000; border-radius: 8px; padding: 15px; background-color: #FFF8F0;">
-              <h5 style="margin: 0 0 10px 0; color: #FE5000;">Starting DP</h5>
-              <div style="border-bottom: 2px solid #333; width: 60px; height: 30px; display: inline-block;"></div>
-            </div>
-            <div style="flex: 1; border: 2px solid #FE5000; border-radius: 8px; padding: 15px; background-color: #FFF8F0;">
-              <h5 style="margin: 0 0 10px 0; color: #FE5000;">Total Spent</h5>
-              <div style="border-bottom: 2px solid #333; width: 60px; height: 30px; display: inline-block;"></div>
-            </div>
-            <div style="flex: 1; border: 2px solid #FE5000; border-radius: 8px; padding: 15px; background-color: #FFF8F0;">
-              <h5 style="margin: 0 0 10px 0; color: #FE5000;">Remaining DP</h5>
-              <div style="border-bottom: 2px solid #333; width: 60px; height: 30px; display: inline-block;"></div>
-            </div>
-          </div>
-        </div>
-        
-        <div>
-          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 16px;">DP Costs Quick Reference</h4>
-          <div style="display: flex; gap: 20px;">
-            <div style="flex: 1; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background-color: #f9f9f9;">
-              <h6 style="margin: 0 0 8px 0; color: #FE5000;">Stats</h6>
-              <p style="margin: 0; font-size: 12px;">1 DP per stat point</p>
-            </div>
-            <div style="flex: 1; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background-color: #f9f9f9;">
-              <h6 style="margin: 0 0 8px 0; color: #FE5000;">Qualities</h6>
-              <p style="margin: 0; font-size: 12px;">Varies by quality</p>
-            </div>
-            <div style="flex: 1; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background-color: #f9f9f9;">
-              <h6 style="margin: 0 0 8px 0; color: #FE5000;">Evolution</h6>
-              <p style="margin: 0; font-size: 12px;">GM determined</p>
+          
+          <!-- Quick Reference at bottom -->
+          <div style="margin-top: 30px;">
+            <h5 style="color: #FE5000; margin-bottom: 10px; font-size: 14px;">DP Costs Quick Reference</h5>
+            <div style="display: flex; gap: 15px; font-size: 12px;">
+              <div style="flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 8px; background-color: #f9f9f9;">
+                <strong style="color: #FE5000;">Stats:</strong> 1 DP per stat point
+              </div>
+              <div style="flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 8px; background-color: #f9f9f9;">
+                <strong style="color: #FE5000;">Qualities:</strong> Varies by quality
+              </div>
+              <div style="flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 8px; background-color: #f9f9f9;">
+                <strong style="color: #FE5000;">Evolution:</strong> GM determined
+              </div>
             </div>
           </div>
         </div>
@@ -703,17 +702,17 @@ export class DigimonPdfGeneratorService {
   }
 
   /**
-   * Create evolution tracking and campaign notes page - NEW PAGE
+   * Create evolution and campaign notes page - SIMPLIFIED (Page 6)  
    */
-  private createEvolutionTrackingHtml(digimon: DigimonCharacter): string {
+  private createEvolutionCampaignNotesHtml(digimon: DigimonCharacter): string {
     const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
     
     return `
       <div style="font-family: Arial, sans-serif; color: #333; width: 100%; height: 100%;">
-        <div style="margin-bottom: 25px;">
-          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 18px;">Evolution Line & Character Progress</h4>
-          
-          <div style="border: 2px solid #FE5000; border-radius: 10px; padding: 20px; background-color: #FFF8F0; margin-bottom: 20px;">
+        <!-- Evolution Notes Section -->
+        <div style="margin-bottom: 35px;">
+
+          <div style="border: 2px solid #FE5000; border-radius: 8px; padding: 20px; background-color: #FFF8F0; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
               <div style="flex: 1;">
                 <div style="font-weight: bold; color: #FE5000; margin-bottom: 5px; font-size: 14px;">Current Stage:</div>
@@ -722,7 +721,7 @@ export class DigimonPdfGeneratorService {
                 </div>
               </div>
               <div style="flex: 1; text-align: center;">
-                <div style="font-weight: bold; color: #FE5000; margin-bottom: 5px; font-size: 14px;">Evolution Type:</div>
+                <div style="font-weight: bold; color: #FE5000; margin-bottom: 5px; font-size: 14px;">Evolution Line:</div>
                 <div style="font-size: 14px; color: #666;">
                   ${evolutionLine ? `${evolutionLine.rookieName} Line` : 'Single Stage'}
                 </div>
@@ -735,72 +734,80 @@ export class DigimonPdfGeneratorService {
               </div>
             </div>
           </div>
-        </div>
-        
-        <div style="margin-bottom: 25px;">
-          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 16px;">Evolution Requirements & Milestones</h4>
-          <div style="border: 1px solid #ddd; padding: 15px; background-color: #fafafa; border-radius: 6px;">
-            <div style="margin-bottom: 15px;">
-              <strong style="color: #FE5000; font-size: 13px;">Evolution Checklist:</strong>
-              <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 15px;">
-                <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">Story milestone achieved</span></div>
-                <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">Required DP accumulated</span></div>
-                <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">Character development completed</span></div>
-                <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">GM approval obtained</span></div>
-              </div>
-            </div>
-            <div>
-              <strong style="color: #FE5000; font-size: 13px;">Notes:</strong>
-              <div style="margin-top: 5px; border-bottom: 1px solid #ccc; height: 40px;"></div>
+          
+          <!-- Evolution Requirements -->
+          <div style="border: 1px solid #ddd; padding: 15px; background-color: #fafafa; border-radius: 6px; margin-bottom: 20px;">
+            <strong style="color: #FE5000; font-size: 14px; margin-bottom: 10px; display: block;">Evolution Requirements:</strong>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+              <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">Story milestone achieved</span></div>
+              <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">Required DP accumulated</span></div>
+              <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">Character development completed</span></div>
+              <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">GM approval obtained</span></div>
             </div>
           </div>
-        </div>
-        
-        <div style="margin-bottom: 25px;">
-          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 16px;">Campaign Notes & Character Development</h4>
+          
+          <!-- Evolution Notes Text Area -->
           <div style="border: 1px solid #ddd; padding: 15px; background-color: #fafafa; border-radius: 6px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-              <div>
-                <strong style="color: #FE5000; font-size: 13px;">Key Relationships:</strong>
-                <div style="margin-top: 5px;">
-                  <div style="border-bottom: 1px solid #ccc; height: 20px; margin-bottom: 3px;"></div>
-                  <div style="border-bottom: 1px solid #ccc; height: 20px;"></div>
-                </div>
-              </div>
-              <div>
-                <strong style="color: #FE5000; font-size: 13px;">Equipment & Items:</strong>
-                <div style="margin-top: 5px;">
-                  <div style="border-bottom: 1px solid #ccc; height: 20px; margin-bottom: 3px;"></div>
-                  <div style="border-bottom: 1px solid #ccc; height: 20px;"></div>
-                </div>
-              </div>
-            </div>
-            <div>
-              <strong style="color: #FE5000; font-size: 13px;">Important Events & Character Goals:</strong>
-              <div style="margin-top: 5px;">
-                <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 5px;"></div>
-                <div style="border-bottom: 1px solid #ccc; height: 25px;"></div>
-              </div>
-            </div>
+            <strong style="color: #FE5000; font-size: 14px; margin-bottom: 10px; display: block;">Evolution Notes & Goals:</strong>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px;"></div>
           </div>
         </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Create session log page - NEW PAGE 7
+   */
+  private createSessionLogHtml(): string {
+    return `
+      <div style="font-family: Arial, sans-serif; color: #333; width: 100%; height: 100%;">
+        <div style="margin-bottom: 20px;">
         
-        <div>
-          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 16px;">Session Log</h4>
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr style="background-color: #FFE5D9;">
-              <th style="padding: 8px; text-align: center; border: 1px solid #ddd; width: 12%; font-size: 12px;">Session</th>
-              <th style="padding: 8px; text-align: center; border: 1px solid #ddd; width: 18%; font-size: 12px;">Date</th>
-              <th style="padding: 8px; text-align: left; border: 1px solid #ddd; width: 70%; font-size: 12px;">Notes & Highlights</th>
+\          <p style="margin-bottom: 20px; font-size: 14px; color: #666;">
+            Track your character's journey through each gaming session, important events, and character development.
+          </p>
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr style="background-color: #FFE5D9;">
+            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 10%; font-size: 14px;">Session #</th>
+            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 15%; font-size: 14px;">Date</th>
+            <th style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 75%; font-size: 14px;">Session Notes & Character Development</th>
+          </tr>
+          ${Array(8).fill(0).map((_, index) => `
+            <tr>
+              <td style="padding: 15px 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: #FE5000; font-size: 12px;">
+                ${index + 1}
+              </td>
+              <td style="padding: 15px 10px; border: 1px solid #ddd; text-align: center; height: 40px;"></td>
+              <td style="padding: 15px 10px; border: 1px solid #ddd; height: 40px;"></td>
             </tr>
-            ${Array(6).fill(0).map((_, index) => `
-              <tr>
-                <td style="padding: 10px 8px; border: 1px solid #ddd; text-align: center; font-size: 11px;">#${index + 1}</td>
-                <td style="padding: 10px 8px; border: 1px solid #ddd; text-align: center;"></td>
-                <td style="padding: 10px 8px; border: 1px solid #ddd;"></td>
-              </tr>
-            `).join('')}
-          </table>
+          `).join('')}
+        </table>
+        
+        <!-- Additional notes section at bottom -->
+        <div style="margin-top: 30px;">
+          <h5 style="color: #FE5000; margin-bottom: 10px; font-size: 16px;">Additional Campaign Notes</h5>
+          <div style="border: 1px solid #ddd; padding: 15px; background-color: #fafafa; border-radius: 6px;">
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px; margin-bottom: 8px;"></div>
+            <div style="border-bottom: 1px solid #ccc; height: 25px;"></div>
+          </div>
         </div>
       </div>
     `;
@@ -820,79 +827,6 @@ export class DigimonPdfGeneratorService {
       'Ultra': 7
     };
     return stageOrder[stage] || 0;
-  }
-
-  /**
-   * Create evolution line tracking HTML for characters with evolution lines
-   */
-  private createEvolutionLineTrackingHtml(evolutionLine: any): string {
-    return `
-      <div style="border: 2px solid #FE5000; border-radius: 10px; padding: 20px; background-color: #FFF8F0;">
-        <div style="text-align: center; margin-bottom: 15px;">
-          <h5 style="margin: 0 0 15px 0; color: #FE5000; font-size: 16px;">${evolutionLine.rookieName} Evolution Line</h5>
-          
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
-            <div style="flex: 1; text-align: center;">
-              <div style="font-weight: bold; color: #FE5000; margin-bottom: 8px; font-size: 13px;">Evolution Type:</div>
-              <div style="font-size: 14px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background-color: white;">
-                ${evolutionLine.selectedChampions && evolutionLine.selectedChampions.length > 1 ? 'Split Evolution' : 'Linear Evolution'}
-              </div>
-            </div>
-            
-            <div style="flex: 1; text-align: center;">
-              <div style="font-weight: bold; color: #FE5000; margin-bottom: 8px; font-size: 13px;">Characters Created:</div>
-              <div style="font-size: 16px; font-weight: bold; color: #FE5000; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background-color: white;">
-                __ / ${1 + (evolutionLine.selectedChampions ? evolutionLine.selectedChampions.length : 0)}
-              </div>
-            </div>
-            
-            <div style="flex: 1; text-align: center;">
-              <div style="font-weight: bold; color: #FE5000; margin-bottom: 8px; font-size: 13px;">Active Stage:</div>
-              <div style="font-size: 14px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background-color: white;">
-                _________
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div style="margin-top: 15px;">
-          <div style="font-weight: bold; color: #FE5000; margin-bottom: 10px; font-size: 13px; text-align: center;">Evolution Progress Checklist:</div>
-          <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">Rookie Complete</span></div>
-            ${evolutionLine.selectedChampions && evolutionLine.selectedChampions.length > 0 ? `
-              <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">Champion${evolutionLine.selectedChampions.length > 1 ? 's' : ''} Complete</span></div>
-            ` : ''}
-            <div style="display: flex; align-items: center; gap: 5px;">☐ <span style="font-size: 12px;">Evolution Requirements Met</span></div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Create single Digimon tracking HTML for non-evolution line characters
-   */
-  private createSingleDigimonTrackingHtml(digimon: DigimonCharacter): string {
-    return `
-      <div style="border: 2px solid #FE5000; border-radius: 10px; padding: 20px; background-color: #FFF8F0;">
-        <div style="text-align: center; margin-bottom: 15px;">
-          <h5 style="margin: 0 0 10px 0; color: #FE5000; font-size: 16px;">Single-Stage Digimon</h5>
-          <div style="display: flex; justify-content: center;">
-            <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: white; min-width: 150px;">
-              <div style="font-weight: bold; color: #FE5000; margin-bottom: 5px;">${digimon.stage}</div>
-              <div style="font-size: 16px; margin-bottom: 8px;">${digimon.species}</div>
-              <div style="font-size: 14px; color: #666;">${digimon.name || 'Individual Name'}</div>
-            </div>
-          </div>
-        </div>
-        
-        <div style="text-align: center; margin-top: 15px;">
-          <p style="margin: 0; font-size: 13px; color: #666; font-style: italic;">
-            This Digimon does not evolve and remains at the ${digimon.stage} stage throughout the campaign.
-          </p>
-        </div>
-      </div>
-    `;
   }
   
   /**
