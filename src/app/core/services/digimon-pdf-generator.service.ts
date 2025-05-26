@@ -3,13 +3,14 @@ import { Injectable } from '@angular/core';
 import { DigimonCharacter } from '../models/digimon-character';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { EvolutionLineManagerService } from './evolution-line-manager.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DigimonPdfGeneratorService {
   
-  constructor() { }
+  constructor(private evolutionLineManager: EvolutionLineManagerService) { }
   
   /**
    * Generate a PDF for the Digimon character sheet
@@ -42,10 +43,11 @@ export class DigimonPdfGeneratorService {
     pdf.setFont('helvetica');
     
     let currentPage = 1;
+    const totalPages = 5; // Updated to 5 pages with dedicated DP spending log page
     let yPosition = margin + headerHeight;
     
     // Add header to the first page
-    this.addDigimonPageHeader(pdf, digimon, currentPage, 4);
+    this.addDigimonPageHeader(pdf, digimon, currentPage, totalPages);
     
     // --- PAGE 1: Digimon Information and Basic Stats ---
     
@@ -71,13 +73,13 @@ export class DigimonPdfGeneratorService {
     yPosition = await this.renderSection(pdf, baseStatsSection, margin, yPosition, contentWidth, pageWidth);
     
     // Add page footer
-    this.addDigimonPageFooter(pdf, currentPage, 4);
+    this.addDigimonPageFooter(pdf, currentPage, totalPages);
     
     // --- PAGE 2: Derived Stats and DP Allocation ---
     pdf.addPage();
     currentPage++;
     yPosition = margin + headerHeight;
-    this.addDigimonPageHeader(pdf, digimon, currentPage, 4);
+    this.addDigimonPageHeader(pdf, digimon, currentPage, totalPages);
     
     // Derived Stats Section
     const derivedStatsSection = {
@@ -99,13 +101,13 @@ export class DigimonPdfGeneratorService {
     
     await this.renderSection(pdf, dpSection, margin, yPosition, contentWidth, pageWidth);
     
-    this.addDigimonPageFooter(pdf, currentPage, 4);
+    this.addDigimonPageFooter(pdf, currentPage, totalPages);
     
     // --- PAGE 3: Qualities ---
     pdf.addPage();
     currentPage++;
     yPosition = margin + headerHeight;
-    this.addDigimonPageHeader(pdf, digimon, currentPage, 4);
+    this.addDigimonPageHeader(pdf, digimon, currentPage, totalPages);
     
     const hasQualities = digimon.qualities && digimon.qualities.length > 0;
     
@@ -124,13 +126,13 @@ export class DigimonPdfGeneratorService {
       pdf.text("No Qualities selected for this Digimon.", pageWidth / 2, pageHeight / 2, { align: 'center' });
     }
     
-    this.addDigimonPageFooter(pdf, currentPage, 4);
+    this.addDigimonPageFooter(pdf, currentPage, totalPages);
     
-    // --- PAGE 4: Attacks and Notes ---
+    // --- PAGE 4: Attacks ---
     pdf.addPage();
     currentPage++;
     yPosition = margin + headerHeight;
-    this.addDigimonPageHeader(pdf, digimon, currentPage, 4);
+    this.addDigimonPageHeader(pdf, digimon, currentPage, totalPages);
     
     // Attacks Section
     const hasAttacks = digimon.attacks && digimon.attacks.length > 0;
@@ -142,20 +144,32 @@ export class DigimonPdfGeneratorService {
         extraSpace: 10 * digimon.attacks.length
       };
       
-      yPosition = await this.renderSection(pdf, attacksSection, margin, yPosition, contentWidth, pageWidth);
-      yPosition += 20;
+      await this.renderSection(pdf, attacksSection, margin, yPosition, contentWidth, pageWidth);
+    } else {
+      pdf.setFont('helvetica', 'italic');
+      pdf.setFontSize(12);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("No Attacks configured for this Digimon.", pageWidth / 2, pageHeight / 2, { align: 'center' });
     }
     
-    // Notes Section
-    const notesSection = {
-      title: "Notes & Evolution Tracking",
-      content: this.createDigimonNotesHtml(),
+    this.addDigimonPageFooter(pdf, currentPage, totalPages);
+    
+    // --- PAGE 5: DP Spending Log (Dedicated Page) ---
+    pdf.addPage();
+    currentPage++;
+    yPosition = margin + headerHeight;
+    this.addDigimonPageHeader(pdf, digimon, currentPage, totalPages);
+    
+    // DP Spending Log Section - Full page
+    const dpSpendingSection = {
+      title: "DP Spending Log & Evolution Tracking",
+      content: this.createDPSpendingLogHtml(),
       extraSpace: 0
     };
     
-    await this.renderSection(pdf, notesSection, margin, yPosition, contentWidth, pageWidth);
+    await this.renderSection(pdf, dpSpendingSection, margin, yPosition, contentWidth, pageWidth);
     
-    this.addDigimonPageFooter(pdf, currentPage, 4);
+    this.addDigimonPageFooter(pdf, currentPage, totalPages);
     
     // Output the PDF
     if (action === 'download') {
@@ -224,7 +238,7 @@ export class DigimonPdfGeneratorService {
   }
   
   /**
-   * Add a header to each page of the Digimon PDF
+   * Add a header to each page of the Digimon PDF - UPDATED
    */
   private addDigimonPageHeader(pdf: jsPDF, digimon: DigimonCharacter, pageNum: number, totalPages: number): void {
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -234,20 +248,20 @@ export class DigimonPdfGeneratorService {
     pdf.setFillColor(254, 80, 0);
     pdf.rect(0, 0, pageWidth, 15, 'F');
     
-    // Logo text
+    // Logo text (left side)
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(12);
     pdf.setTextColor(255, 255, 255);
     pdf.text('DIGIMON', 10, 10);
     
-    // Character name/species
+    // Character name/species (center) - UPDATED
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(16);
+    pdf.setFontSize(14);
     pdf.setTextColor(255, 255, 255);
     const characterName = digimon.name || digimon.species || 'Unnamed Digimon';
-    pdf.text(characterName, pageWidth / 2, margin + 2, { align: 'center' });
+    pdf.text(characterName, pageWidth / 2, 10, { align: 'center' });
     
-    // Page number
+    // Page number (right side)
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(10);
     pdf.setTextColor(255, 255, 255);
@@ -273,12 +287,28 @@ export class DigimonPdfGeneratorService {
   }
   
   /**
-   * Create the basic Digimon info section
+   * Create the basic Digimon info section - UPDATED to show evolution line preview
    */
   private createDigimonBasicInfoHtml(digimon: DigimonCharacter): string {
+    const evolutionLine = this.evolutionLineManager.getCurrentEvolutionLine();
+    
+    let imageHtml = '';
+    
+    if (evolutionLine) {
+      // Get the evolution line data to build the complete preview
+      imageHtml = this.createEvolutionLinePreview(digimon, evolutionLine);
+    } else if (digimon.profileImage) {
+      // Single Digimon - show just their image
+      imageHtml = `
+        <div style="flex: 1; text-align: center;">
+          <img src="${digimon.profileImage}" alt="Digimon Sprite" style="max-width: 100px; max-height: 100px; border: 2px solid #FE5000; border-radius: 8px;"/>
+        </div>
+      `;
+    }
+    
     return `
       <div style="font-family: Arial, sans-serif; color: #333; width: 100%;">
-        <div style="display: flex; margin-bottom: 15px; align-items: center;">
+        <div style="display: flex; margin-bottom: 15px; align-items: flex-start;">
           <div style="flex: 2;">
             <p style="margin: 5px 0;"><strong>Species:</strong> ${digimon.species || 'Not set'}</p>
             <p style="margin: 5px 0;"><strong>Stage:</strong> ${digimon.stage}</p>
@@ -286,15 +316,143 @@ export class DigimonPdfGeneratorService {
             <p style="margin: 5px 0;"><strong>Field:</strong> ${digimon.field}</p>
             <p style="margin: 5px 0;"><strong>Size:</strong> ${digimon.size}</p>
           </div>
-          ${digimon.profileImage ? `
-            <div style="flex: 1; text-align: center;">
-              <img src="${digimon.profileImage}" alt="Digimon Sprite" style="max-width: 100px; max-height: 100px; border: 2px solid #FE5000; border-radius: 8px;"/>
-            </div>
-          ` : ''}
+          ${imageHtml}
         </div>
         ${digimon.description ? `<p style="margin: 10px 0;"><strong>Description:</strong> ${digimon.description}</p>` : ''}
       </div>
     `;
+  }
+
+  /**
+   * Create evolution line preview showing all stages with current highlighted
+   */
+  private createEvolutionLinePreview(currentDigimon: DigimonCharacter, evolutionLine: any): string {
+    // Build the complete evolution line preview from the evolution line data
+    let previewHtml = `
+      <div style="flex: 1; text-align: center;">
+        <div style="background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; padding: 10px;">
+          <h5 style="margin: 0 0 10px 0; color: #FE5000; font-size: 12px;">Evolution Line</h5>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+    `;
+
+    // Rookie Stage
+    const rookieSprite = evolutionLine.rookieSprite ? 
+      `assets/images/digimon-sprites/rookies/${evolutionLine.rookieSprite}` : '';
+    const isRookieCurrent = currentDigimon.stage === 'Rookie' && 
+      currentDigimon.species === evolutionLine.rookieName;
+    
+    previewHtml += `
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <div style="border: 3px solid ${isRookieCurrent ? '#FE5000' : 'transparent'}; 
+                   border-radius: 6px; padding: 2px; background-color: ${isRookieCurrent ? 'rgba(254, 80, 0, 0.1)' : 'white'};">
+          ${rookieSprite ? `
+            <img src="${rookieSprite}" alt="${evolutionLine.rookieName}" 
+                 style="width: 50px; height: 50px; object-fit: contain; border-radius: 4px;"/>
+          ` : `
+            <div style="width: 50px; height: 50px; background-color: #e0e0e0; border-radius: 4px; 
+                       display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 16px; color: #888;">?</span>
+            </div>
+          `}
+        </div>
+        <div style="font-size: 9px; font-weight: bold; color: ${isRookieCurrent ? '#FE5000' : '#333'}; margin-top: 2px;">
+          ${evolutionLine.rookieName}
+        </div>
+        <div style="font-size: 8px; color: #666;">Rookie</div>
+      </div>
+    `;
+
+    // Arrow down if there are champions
+    if (evolutionLine.selectedChampions && evolutionLine.selectedChampions.length > 0) {
+      previewHtml += `
+        <div style="color: #888; font-size: 12px;">↓</div>
+      `;
+
+      // Champion Stage(s)
+      if (evolutionLine.selectedChampions.length === 1) {
+        // Single champion evolution
+        const championId = evolutionLine.selectedChampions[0];
+        const championOption = evolutionLine.championOptions.find((c: any) => c.id === championId);
+        
+        if (championOption) {
+          const championSprite = championOption.sprite ? 
+            `assets/images/digimon-sprites/champions/${championOption.sprite}` : '';
+          const isChampionCurrent = currentDigimon.stage === 'Champion' && 
+            currentDigimon.species === championOption.name;
+          
+          previewHtml += `
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <div style="border: 3px solid ${isChampionCurrent ? '#FE5000' : 'transparent'}; 
+                         border-radius: 6px; padding: 2px; background-color: ${isChampionCurrent ? 'rgba(254, 80, 0, 0.1)' : 'white'};">
+                ${championSprite ? `
+                  <img src="${championSprite}" alt="${championOption.name}" 
+                       style="width: 50px; height: 50px; object-fit: contain; border-radius: 4px;"/>
+                ` : `
+                  <div style="width: 50px; height: 50px; background-color: #e0e0e0; border-radius: 4px; 
+                             display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 16px; color: #888;">?</span>
+                  </div>
+                `}
+              </div>
+              <div style="font-size: 9px; font-weight: bold; color: ${isChampionCurrent ? '#FE5000' : '#333'}; margin-top: 2px;">
+                ${championOption.name}
+              </div>
+              <div style="font-size: 8px; color: #666;">Champion</div>
+            </div>
+          `;
+        }
+      } else {
+        // Split evolution - show multiple champions
+        previewHtml += `
+          <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+        `;
+        
+        evolutionLine.selectedChampions.forEach((championId: string) => {
+          const championOption = evolutionLine.championOptions.find((c: any) => c.id === championId);
+          
+          if (championOption) {
+            const championSprite = championOption.sprite ? 
+              `assets/images/digimon-sprites/champions/${championOption.sprite}` : '';
+            const isChampionCurrent = currentDigimon.stage === 'Champion' && 
+              currentDigimon.species === championOption.name;
+            
+            previewHtml += `
+              <div style="display: flex; flex-direction: column; align-items: center;">
+                <div style="border: 3px solid ${isChampionCurrent ? '#FE5000' : 'transparent'}; 
+                           border-radius: 6px; padding: 2px; background-color: ${isChampionCurrent ? 'rgba(254, 80, 0, 0.1)' : 'white'};">
+                  ${championSprite ? `
+                    <img src="${championSprite}" alt="${championOption.name}" 
+                         style="width: 45px; height: 45px; object-fit: contain; border-radius: 4px;"/>
+                  ` : `
+                    <div style="width: 45px; height: 45px; background-color: #e0e0e0; border-radius: 4px; 
+                               display: flex; align-items: center; justify-content: center;">
+                      <span style="font-size: 14px; color: #888;">?</span>
+                    </div>
+                  `}
+                </div>
+                <div style="font-size: 8px; font-weight: bold; color: ${isChampionCurrent ? '#FE5000' : '#333'}; margin-top: 2px; text-align: center;">
+                  ${championOption.name}
+                </div>
+                <div style="font-size: 7px; color: #666;">Champion</div>
+              </div>
+            `;
+          }
+        });
+        
+        previewHtml += `</div>`;
+      }
+    }
+
+    previewHtml += `
+          </div>
+          <div style="font-size: 8px; color: #666; margin-top: 5px; font-style: italic;">
+            ${evolutionLine.rookieName} Evolution Line
+          </div>
+        </div>
+      </div>
+    `;
+
+    return previewHtml;
   }
   
   /**
@@ -442,34 +600,47 @@ export class DigimonPdfGeneratorService {
   }
   
   /**
-   * Create a notes section for evolution tracking and general notes
+   * Create a dedicated DP spending log page - UPDATED with larger rows and full page
    */
-  private createDigimonNotesHtml(): string {
+  private createDPSpendingLogHtml(): string {
     return `
-      <div style="font-family: Arial, sans-serif; color: #333; width: 100%;">
-        <div style="margin-bottom: 20px;">
-          <h4 style="color: #FE5000; margin-bottom: 5px;">Evolution Progress</h4>
-          <div style="border: 1px solid #ddd; height: 80px; width: 100%; margin-bottom: 15px;"></div>
-        </div>
-        
-        <div style="margin-bottom: 20px;">
-          <h4 style="color: #FE5000; margin-bottom: 5px;">Battle Notes</h4>
-          <div style="border: 1px solid #ddd; height: 80px; width: 100%; margin-bottom: 15px;"></div>
-        </div>
-        
-        <div style="margin-bottom: 20px;">
-          <h4 style="color: #FE5000; margin-bottom: 5px;">DP Spending Log</h4>
-          <table style="width: 100%; border-collapse: collapse;">
+      <div style="font-family: Arial, sans-serif; color: #333; width: 100%; height: 100%;">
+        <div style="margin-bottom: 30px;">
+          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 18px;">DP Spending & Upgrade Log</h4>
+          <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
+            Use this section to track how you spend DP during gameplay and character advancement.
+          </p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
             <tr style="background-color: #FFE5D9;">
-              <th style="padding: 6px; text-align: left; border: 1px solid #ddd; width: 60%;">Upgrade/Purchase</th>
-              <th style="padding: 6px; text-align: center; border: 1px solid #ddd; width: 20%;">DP Cost</th>
-              <th style="padding: 6px; text-align: center; border: 1px solid #ddd; width: 20%;">Date</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; width: 50%; font-size: 14px;">Upgrade/Purchase Description</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 15%; font-size: 14px;">DP Cost</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 15%; font-size: 14px;">Session</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 20%; font-size: 14px;">Date/Notes</th>
             </tr>
-            <tr><td style="padding: 8px; border: 1px solid #ddd;"></td><td style="padding: 8px; border: 1px solid #ddd;"></td><td style="padding: 8px; border: 1px solid #ddd;"></td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #ddd;"></td><td style="padding: 8px; border: 1px solid #ddd;"></td><td style="padding: 8px; border: 1px solid #ddd;"></td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #ddd;"></td><td style="padding: 8px; border: 1px solid #ddd;"></td><td style="padding: 8px; border: 1px solid #ddd;"></td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #ddd;"></td><td style="padding: 8px; border: 1px solid #ddd;"></td><td style="padding: 8px; border: 1px solid #ddd;"></td></tr>
+            ${Array(15).fill(0).map(() => `
+              <tr>
+                <td style="padding: 20px 12px; border: 1px solid #ddd; height: 40px;"></td>
+                <td style="padding: 20px 12px; border: 1px solid #ddd; text-align: center; height: 40px;"></td>
+                <td style="padding: 20px 12px; border: 1px solid #ddd; text-align: center; height: 40px;"></td>
+                <td style="padding: 20px 12px; border: 1px solid #ddd; text-align: center; height: 40px;"></td>
+              </tr>
+            `).join('')}
           </table>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 16px;">Evolution Progress & Milestones</h4>
+          <div style="border: 1px solid #ddd; height: 120px; width: 100%; margin-bottom: 20px; padding: 10px;">
+            <p style="margin: 0; font-size: 12px; color: #888;">Track evolution requirements, story milestones, and character development goals here...</p>
+          </div>
+        </div>
+        
+        <div>
+          <h4 style="color: #FE5000; margin-bottom: 15px; font-size: 16px;">Campaign Notes</h4>
+          <div style="border: 1px solid #ddd; height: 150px; width: 100%; padding: 10px;">
+            <p style="margin: 0; font-size: 12px; color: #888;">Important story events, relationships, equipment, and other campaign-specific information...</p>
+          </div>
         </div>
       </div>
     `;
